@@ -3,25 +3,96 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand-orange: #FF5E00;
+  --brand-black: #080809;
+  --brand-white: #FAF9F6;
+  --surface-dark: #121214;
+  --surface-card: #18181B;
+  --surface-elevated: #202024;
+  --border-subtle: #27272A;
+  --text-primary: #FAF9F6;
+  --text-secondary: #A1A1AA;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--brand-black);
+  color: var(--text-primary);
+  font-family: var(--font-manrope), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-left: var(--sal);
+  padding-right: var(--sar);
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Touch momentum and utility classes */
+.touch-momentum {
+  -webkit-overflow-scrolling: touch;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Athletic Display Typography: Barlow Condensed */
+.font-display {
+  font-family: var(--font-barlow-condensed), 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-condensed {
+  font-family: var(--font-barlow-condensed), 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.font-sans,
+.font-body {
+  font-family: var(--font-manrope), system-ui, -apple-system, sans-serif;
+}
+
+/* Court Texture and Markings */
+.court-lines-pattern {
+  background-image: radial-gradient(circle at center, rgba(255, 94, 0, 0.08) 0%, transparent 70%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 60px 60px, 60px 60px;
+}
+
+/* Clean Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #080809;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272A;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF5E00;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

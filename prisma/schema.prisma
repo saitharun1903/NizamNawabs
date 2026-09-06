@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model SiteSetting {
+  id               String   @id @default("default")
+  teamName         String   @default("Nizam Nawabs")
+  shortName        String   @default("Nawabs")
+  tagline          String   @default("Bold basketball, local pride, unstoppable spirit")
+  logoUrl          String   @default("/brand/logo-crest.png")
+  primaryColor     String   @default("#FF5E00")
+  secondaryColor   String   @default("#080809")
+  instagramUrl     String   @default("https://www.instagram.com/nizamnawabs_basketball/")
+  youtubeUrl       String   @default("https://www.youtube.com/@fgsnpro")
+  contactEmail     String   @default("contact@nizamnawabs.com")
+  phone            String   @default("")
+  location         String   @default("Telangana, India")
+  footerText       String   @default("Nizam Nawabs Professional Basketball Club. All rights reserved.")
+  seoTitle         String   @default("Nizam Nawabs | Official Professional Basketball Team of Telangana")
+  seoDescription   String   @default("Official digital home of Nizam Nawabs, professional basketball team in Telangana. Season 1 Runners Up.")
+  ogImageUrl       String   @default("/brand/reference-full.png")
+  updatedAt        DateTime @updatedAt
+}
+
+model HeroSlide {
+  id                  String   @id @default(cuid())
+  eyebrow             String   @default("TELANGANA PRO BASKETBALL LEAGUE")
+  title               String   @default("NIZAM NAWABS")
+  subtitle            String   @default("Season 1 Runners Up • Bold basketball, local pride, unstoppable spirit.")
+  ctaLabel            String   @default("EXPLORE SQUAD")
+  ctaUrl              String   @default("/roster")
+  secondaryCtaLabel   String   @default("SEASON HIGHLIGHTS")
+  secondaryCtaUrl     String   @default("https://www.youtube.com/@fgsnpro")
+  backgroundMediaUrl  String   @default("/brand/post-journey-players.png")
+  isPublished         Boolean  @default(true)
+  displayOrder        Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model TeamInfo {
+  id                   String   @id @default("default")
+  headline             String   @default("PRIDE OF TELANGANA BASKETBALL")
+  philosophy           String   @default("Born from the heart of the Deccan, Nizam Nawabs embodies aggressive court tempo, local pride, and relentless athletic discipline. We represent the rising standard of professional basketball in South India.")
+  telanganaIdentity    String   @default("Anchored in Telangana's rich sporting heritage, the Nawabs bring together top domestic talent, high-altitude athletic conditioning, and an unwavering commitment to youth basketball culture.")
+  homeCourt            String   @default("Kotla Vijaya Bhaskara Reddy Indoor Stadium, Hyderabad")
+  bannerImageUrl       String   @default("/brand/post-journey-players.png")
+  achievementSummary   String   @default("TPBL Season 1 Runners Up. 2024-2025 Finalists.")
+  updatedAt            DateTime @updatedAt
+}
+
+model Player {
+  id           String   @id @default(cuid())
+  name         String
+  jerseyNumber Int
+  position     String   // Guard, Forward, Center
+  photoUrl     String   @default("/brand/player-2.png")
+  bio          String   @default("")
+  height       String   @default("")
+  nationality  String   @default("India")
+  ppg          Float    @default(0.0) // Points per game
+  rpg          Float    @default(0.0) // Rebounds per game
+  apg          Float    @default(0.0) // Assists per game
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Season {
+  id            String   @id @default(cuid())
+  seasonName    String   // e.g. "TPBL Season 1"
+  seasonNumber  Int      @default(1)
+  year          String   // e.g. "2024"
+  achievement   String   // "Runners Up"
+  description   String   @default("Historic debut season in the Telangana Pro Basketball League culminating in a finals finish.")
+  coverImageUrl String   @default("/brand/highlight-season1.png")
+  isCurrent     Boolean  @default(false)
+  status        String   @default("Completed") // Upcoming, Active, Completed
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  homeTeam    String
+  awayTeam    String
+  homeScore   Int?
+  awayScore   Int?
+  matchDate   String   // YYYY-MM-DD
+  matchTime   String   // HH:MM
+  venue       String
+  competition String   @default("Telangana Pro Basketball League")
+  status      String   @default("Upcoming") // Upcoming, Completed, Cancelled
+  ticketUrl   String   @default("")
+  notes       String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model JourneyMilestone {
+  id           String   @id @default(cuid())
+  yearLabel    String   // e.g. "2024"
+  title        String
+  description  String
+  category     String   @default("Franchise")
+  imageUrl     String   @default("")
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GalleryItem {
+  id           String   @id @default(cuid())
+  title        String
+  caption      String   @default("")
+  imageUrl     String
+  category     String   @default("Match Day") // Match Day, Auction, Training, Lifestyle
+  isFeatured   Boolean  @default(false)
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Article {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  excerpt        String
+  content        String
+  coverImageUrl  String   @default("/brand/post-journey-players.png")
+  category       String   @default("Team News")
+  author         String   @default("Nizam Nawabs Media")
+  status         String   @default("DRAFT") // DRAFT, PUBLISHED
+  publishedAt    DateTime?
+  seoTitle       String   @default("")
+  seoDescription String   @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Sponsor {
+  id           String   @id @default(cuid())
+  name         String
+  logoUrl      String   @default("")
+  tier         String   @default("Official Partner") // Title, Official, Kit, Associate
+  websiteUrl   String   @default("")
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model NavigationItem {
+  id           String   @id @default(cuid())
+  label        String
+  url          String
+  isExternal   Boolean  @default(false)
+  isVisible    Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  filename  String
+  fileUrl   String
+  fileSize  Int
+  mimeType  String
+  altText   String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String   @default("Administrator")
+  role         String   @default("SUPERADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  action     String   // CREATE, UPDATE, DELETE, PUBLISH, UNPUBLISH
+  entityType String   // Player, Match, Hero, Article, Setting, etc.
+  entityId   String
+  details    String   @default("")
+  userEmail  String   @default("system")
+  createdAt  DateTime @default(now())
+}
