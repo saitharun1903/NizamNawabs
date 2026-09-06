@@ -167,11 +167,6 @@ export default function EditorialHero({ heroData }: EditorialHeroProps) {
           className="relative w-full max-w-2xl h-[260px] sm:h-[340px] md:h-[420px] lg:h-[480px] -my-10 sm:-my-16 md:-my-24 lg:-my-32 z-20 cursor-grab active:cursor-grabbing"
         >
           <BasketballCanvas />
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-            <span className="text-[9px] sm:text-[10px] uppercase font-sans font-bold tracking-wider text-zinc-400 bg-brand-black/80 px-3 py-1 rounded-full border border-surface-border backdrop-blur-sm">
-              DRAG TO ROTATE BALL
-            </span>
-          </div>
         </div>
 
         {/* Layer 3: Foreground Title "NAWABS" with Orange Flare */}

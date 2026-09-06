@@ -20,7 +20,7 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <section className="relative py-16 sm:py-24 lg:py-40 bg-[#070709] overflow-hidden border-b border-surface-border">
+    <section className="relative py-16 sm:py-24 lg:py-40 bg-[#070709] overflow-hidden border-b border-surface-border scroll-reveal">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 space-y-8 sm:space-y-16 lg:space-y-20">
         {/* Section Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-surface-border/50 pb-4 sm:pb-6">
@@ -52,6 +52,8 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
               <img
                 src={items[0].imageUrl}
                 alt={items[0].title}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
@@ -81,6 +83,8 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
                 <img
                   src={items[1].imageUrl}
                   alt={items[1].title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
@@ -121,6 +125,8 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
                   <img
                     src={items[2].imageUrl}
                     alt={items[2].title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
@@ -143,6 +149,8 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
             <img
               src={items[3].imageUrl}
               alt={items[3].title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover object-center group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />

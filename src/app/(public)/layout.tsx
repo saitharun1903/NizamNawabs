@@ -3,6 +3,7 @@ import prisma from '@/lib/db';
 import PublicNavbar from '@/components/public/PublicNavbar';
 import PublicFooter from '@/components/public/PublicFooter';
 import CinematicIntro from '@/components/public/CinematicIntro';
+import ScrollObserver from '@/components/public/ScrollObserver';
 import BrandedPageTransition from '@/components/public/BrandedPageTransition';
 import AIAssistant from '@/components/public/AIAssistant';
 
@@ -48,6 +49,7 @@ export default async function PublicLayout({
   return (
     <div className="flex flex-col min-h-screen bg-brand-black text-brand-white">
       <CinematicIntro />
+      <ScrollObserver />
       <PublicNavbar
         navItems={navItems.map((n) => ({
           id: n.id,

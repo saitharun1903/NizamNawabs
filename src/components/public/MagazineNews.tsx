@@ -26,7 +26,7 @@ export default function MagazineNews({ articles }: MagazineNewsProps) {
   const supportingStories = articles.slice(1);
 
   return (
-    <section className="relative py-16 sm:py-24 lg:py-40 bg-[#0A0A0C] overflow-hidden border-b border-surface-border">
+    <section className="relative py-16 sm:py-24 lg:py-40 bg-[#0A0A0C] overflow-hidden border-b border-surface-border scroll-reveal">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 space-y-8 sm:space-y-16 lg:space-y-20">
         {/* Section Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-surface-border/50 pb-4 sm:pb-6">
@@ -58,6 +58,8 @@ export default function MagazineNews({ articles }: MagazineNewsProps) {
                   <img
                     src={leadStory.coverImageUrl || '/brand/post-journey-players.png'}
                     alt={leadStory.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-95 group-hover:brightness-100"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-85 group-hover:opacity-95 transition-opacity duration-300" />

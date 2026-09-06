@@ -49,7 +49,7 @@ export default function InteractiveRosterStage({ players }: InteractiveRosterSta
   };
 
   return (
-    <section className="relative py-16 sm:py-24 lg:py-40 bg-[#08080A] overflow-hidden border-b border-surface-border selection:bg-brand-orange selection:text-white">
+    <section className="relative py-16 sm:py-24 lg:py-40 bg-[#08080A] overflow-hidden border-b border-surface-border selection:bg-brand-orange selection:text-white scroll-reveal">
       {/* Gigantic Jersey Number Watermark in Background */}
       <div className="absolute right-0 sm:right-10 top-1/2 -translate-y-1/2 select-none pointer-events-none opacity-[0.05] z-0">
         <span className="font-display text-[42vw] font-black leading-none text-white tracking-tighter">
@@ -108,6 +108,8 @@ export default function InteractiveRosterStage({ players }: InteractiveRosterSta
                 key={currentPlayer.id}
                 src={currentPlayer.photoUrl || '/brand/player-1.png'}
                 alt={currentPlayer.name}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover object-top animate-fade-slide-in filter brightness-95 group-hover:scale-[1.025] transition-transform duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />

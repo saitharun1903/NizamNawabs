@@ -33,7 +33,7 @@ export default function SeasonCampaignPoster({ seasons }: SeasonCampaignPosterPr
   const season2 = seasons.find((s) => s.seasonNumber === 2);
 
   return (
-    <section className="relative py-16 sm:py-24 lg:py-36 bg-brand-black overflow-hidden border-b border-surface-border">
+    <section className="relative py-16 sm:py-24 lg:py-36 bg-brand-black overflow-hidden border-b border-surface-border scroll-reveal">
       {/* Gigantic Background Watermark "01" */}
       <div className="absolute -left-12 sm:left-4 top-1/2 -translate-y-1/2 select-none pointer-events-none opacity-[0.04]">
         <span className="font-display text-[45vw] font-black leading-none text-white tracking-tighter">
@@ -89,6 +89,8 @@ export default function SeasonCampaignPoster({ seasons }: SeasonCampaignPosterPr
                   <img
                     src={season1.coverImageUrl}
                     alt="TPBL Season 1 Emblem"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-contain"
                   />
                 </div>

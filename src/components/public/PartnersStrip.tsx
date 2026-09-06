@@ -18,7 +18,7 @@ export default function PartnersStrip({ sponsors }: PartnersStripProps) {
   if (!sponsors || sponsors.length === 0) return null;
 
   return (
-    <section className="py-20 sm:py-28 bg-[#08080A] border-b border-surface-border overflow-hidden">
+    <section className="py-20 sm:py-28 bg-[#08080A] border-b border-surface-border overflow-hidden scroll-reveal">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         <div className="flex items-center justify-between border-b border-surface-border/50 pb-4 text-[11px] font-sans font-bold uppercase tracking-wider text-zinc-400">
           <span>{"// 07 COMMERCIAL ALLIANCES"}</span>

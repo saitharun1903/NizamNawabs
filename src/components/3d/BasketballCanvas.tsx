@@ -14,6 +14,14 @@ export default function BasketballCanvas() {
     // Check prefers-reduced-motion and screen width for mobile optimization
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    // Cached container bounding box to avoid forced reflows on pointer events
+    let cachedRect = container.getBoundingClientRect();
+    const updateRect = () => {
+      if (container) cachedRect = container.getBoundingClientRect();
+    };
 
     // Scene Setup
     const scene = new THREE.Scene();
@@ -23,7 +31,7 @@ export default function BasketballCanvas() {
       0.1,
       100
     );
-    camera.position.set(0, 0.4, isMobile ? 4.7 : 4.2);
+    camera.position.set(0, 0.4, isMobile ? 4.7 : isTablet ? 4.4 : 4.2);
 
     let renderer: THREE.WebGLRenderer;
     try {
@@ -33,7 +41,10 @@ export default function BasketballCanvas() {
         powerPreference: isMobile ? 'default' : 'high-performance',
       });
       renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+
+      // Strict DPR Capping: 1.2 on mobile, 1.5 on tablet, 2.0 on desktop
+      const maxDpr = isMobile ? 1.2 : isTablet ? 1.5 : 2.0;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDpr));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.1;
       container.appendChild(renderer.domElement);
@@ -42,9 +53,10 @@ export default function BasketballCanvas() {
       return;
     }
 
-    // Procedural Basketball Texture Generator (Scales resolution dynamically)
+    // Procedural Basketball Texture Generator (Fast lightweight resolution scaling)
     function createBasketballTextures() {
-      const size = isMobile ? 512 : 1024;
+      // 256px on mobile (75% less pixel calculations), 512px on tablet, 1024px on desktop
+      const size = isMobile ? 256 : isTablet ? 512 : 1024;
       const canvas = document.createElement('canvas');
       canvas.width = size;
       canvas.height = size;
@@ -54,20 +66,22 @@ export default function BasketballCanvas() {
       ctx.fillStyle = '#E85205';
       ctx.fillRect(0, 0, size, size);
 
-      // Fine leather pebbling noise
+      // Fine leather pebbling noise (Optimized step for mobile thread budget)
       const imgData = ctx.getImageData(0, 0, size, size);
       const data = imgData.data;
-      for (let i = 0; i < data.length; i += 4) {
-        const noise = (Math.random() - 0.5) * 24;
+      const step = isMobile ? 8 : 4;
+      for (let i = 0; i < data.length; i += step) {
+        const noise = (Math.random() - 0.5) * 22;
         data[i] = Math.min(255, Math.max(0, data[i] + noise));
         data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise * 0.7));
         data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise * 0.2));
       }
       ctx.putImageData(imgData, 0, 0);
 
-      // Black Basketball Seam Ribs
+      // Black Basketball Seam Ribs (Resolution-scaled line widths)
+      const scaleFactor = size / 1024;
       ctx.strokeStyle = '#121214';
-      ctx.lineWidth = 14;
+      ctx.lineWidth = Math.max(4, 14 * scaleFactor);
       ctx.lineCap = 'round';
 
       // Equator seam
@@ -83,7 +97,7 @@ export default function BasketballCanvas() {
       ctx.stroke();
 
       // Curved side ribs
-      ctx.lineWidth = 12;
+      ctx.lineWidth = Math.max(3, 12 * scaleFactor);
       ctx.beginPath();
       ctx.arc(size * 0.25, size / 2, size * 0.35, -Math.PI / 2, Math.PI / 2);
       ctx.stroke();
@@ -104,19 +118,21 @@ export default function BasketballCanvas() {
       bCtx.fillStyle = '#808080';
       bCtx.fillRect(0, 0, size, size);
 
-      // Add high frequency bump dots
+      // Add high frequency bump dots with lightweight pattern
       bCtx.fillStyle = '#A0A0A0';
-      for (let x = 0; x < size; x += 6) {
-        for (let y = 0; y < size; y += 6) {
-          if (Math.random() > 0.3) {
-            bCtx.fillRect(x, y, 2, 2);
+      const bumpStep = isMobile ? 12 : 6;
+      const dotSize = isMobile ? 3 : 2;
+      for (let x = 0; x < size; x += bumpStep) {
+        for (let y = 0; y < size; y += bumpStep) {
+          if (Math.random() > 0.35) {
+            bCtx.fillRect(x, y, dotSize, dotSize);
           }
         }
       }
 
       // Inset seams into bump
       bCtx.strokeStyle = '#202020';
-      bCtx.lineWidth = 16;
+      bCtx.lineWidth = Math.max(5, 16 * scaleFactor);
       bCtx.beginPath();
       bCtx.moveTo(0, size / 2);
       bCtx.lineTo(size, size / 2);
@@ -141,12 +157,13 @@ export default function BasketballCanvas() {
 
     const { colorTexture, bumpTexture } = createBasketballTextures();
 
-    // Basketball Mesh (Reduced geometry on mobile)
-    const ballGeometry = new THREE.SphereGeometry(1, isMobile ? 32 : 64, isMobile ? 32 : 64);
+    // Basketball Mesh (Tiered segments: 24 mobile, 36 tablet, 64 desktop)
+    const segments = isMobile ? 24 : isTablet ? 36 : 64;
+    const ballGeometry = new THREE.SphereGeometry(1, segments, segments);
     const ballMaterial = new THREE.MeshStandardMaterial({
       map: colorTexture,
       bumpMap: bumpTexture,
-      bumpScale: 0.035,
+      bumpScale: isMobile ? 0.025 : 0.035,
       roughness: 0.42,
       metalness: 0.04,
     });
@@ -155,7 +172,7 @@ export default function BasketballCanvas() {
     scene.add(basketball);
 
     // Subtle 3D Court Ring Floor below ball
-    const courtRingGeo = new THREE.RingGeometry(1.4, 1.44, 64);
+    const courtRingGeo = new THREE.RingGeometry(1.4, 1.44, isMobile ? 32 : 64);
     const courtRingMat = new THREE.MeshBasicMaterial({
       color: 0xff5e00,
       side: THREE.DoubleSide,
@@ -168,7 +185,7 @@ export default function BasketballCanvas() {
     scene.add(courtRing);
 
     // Inner center circle
-    const innerRingGeo = new THREE.RingGeometry(0.7, 0.73, 64);
+    const innerRingGeo = new THREE.RingGeometry(0.7, 0.73, isMobile ? 32 : 64);
     const innerRingMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide,
@@ -180,8 +197,8 @@ export default function BasketballCanvas() {
     innerRing.position.y = -1.15;
     scene.add(innerRing);
 
-    // Floating subtle particles (Reduced on mobile for frame budget)
-    const particleCount = isMobile ? 16 : 45;
+    // Floating subtle particles (Budgeted count for mobile frame rate)
+    const particleCount = isMobile ? 12 : isTablet ? 24 : 45;
     const particleGeo = new THREE.BufferGeometry();
     const particlePos = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
@@ -200,7 +217,7 @@ export default function BasketballCanvas() {
     const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
 
-    // Lighting
+    // Lighting (Directional on mobile to avoid heavy SpotLight shader fragment overhead)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
@@ -208,9 +225,16 @@ export default function BasketballCanvas() {
     mainKeyLight.position.set(3, 4, 3);
     scene.add(mainKeyLight);
 
-    const orangeRimLight = new THREE.SpotLight(0xff5e00, 5.0, 10, Math.PI / 4, 0.4);
-    orangeRimLight.position.set(-3, -1, -2);
-    orangeRimLight.target = basketball;
+    let orangeRimLight: THREE.Light;
+    if (isMobile) {
+      orangeRimLight = new THREE.DirectionalLight(0xff5e00, 3.2);
+      orangeRimLight.position.set(-3, -1, -2);
+    } else {
+      const spot = new THREE.SpotLight(0xff5e00, 5.0, 10, Math.PI / 4, 0.4);
+      spot.position.set(-3, -1, -2);
+      spot.target = basketball;
+      orangeRimLight = spot;
+    }
     scene.add(orangeRimLight);
 
     const fillBlueLight = new THREE.DirectionalLight(0x404060, 1.2);
@@ -219,7 +243,6 @@ export default function BasketballCanvas() {
 
     // Mouse Tracking & Interaction with Momentum Lerp
     let mouseX = 0;
-    let mouseY = 0;
     let targetRotY = 0;
     let isDragging = false;
     let prevMouseX = 0;
@@ -227,12 +250,31 @@ export default function BasketballCanvas() {
     let dragVelocityX = 0;
     let dragVelocityY = 0;
 
+    // Natural Physical Scroll Momentum (Section 19: Basketball reacts to scroll down/up smoothly)
+    let lastScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+    let scrollRotVelocity = 0;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const deltaY = currentScrollY - lastScrollY;
+      lastScrollY = currentScrollY;
+
+      // When user scrolls DOWN, ball rotates forward (+X). When user scrolls UP, ball reverses (-X).
+      scrollRotVelocity += deltaY * 0.0022;
+      // Clamp to prevent unnatural hyper-spinning on rapid flick scrolls
+      scrollRotVelocity = Math.max(-0.16, Math.min(0.16, scrollRotVelocity));
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     const handlePointerMove = (e: PointerEvent) => {
-      const rect = container.getBoundingClientRect();
+      // Use cachedRect to eliminate getBoundingClientRect layout thrashing
+      const rect = cachedRect;
       const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-      mouseX = x;
-      mouseY = y;
+
+      // On non-touch devices, tilt ball smoothly towards cursor
+      if (!isTouch) {
+        mouseX = x;
+      }
 
       if (isDragging) {
         const deltaX = e.clientX - prevMouseX;
@@ -258,18 +300,20 @@ export default function BasketballCanvas() {
       isDragging = false;
     };
 
-    container.addEventListener('pointermove', handlePointerMove);
-    container.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('pointerup', handlePointerUp);
+    container.addEventListener('pointermove', handlePointerMove, { passive: true });
+    container.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp, { passive: true });
 
-    // Resize Handler
+    // Resize & Orientation Handler
     const handleResize = () => {
       if (!container) return;
+      updateRect();
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
 
     // Animation Loop with IntersectionObserver Optimization
     let animationFrameId: number;
@@ -279,12 +323,14 @@ export default function BasketballCanvas() {
     const animate = () => {
       if (!isRunning) return;
       animationFrameId = requestAnimationFrame(animate);
-      const delta = clock.getDelta();
+
+      // Clamp delta to avoid animation jumping after browser tab switch or resume
+      const delta = Math.min(clock.getDelta(), 0.05);
       const time = clock.getElapsedTime();
 
       if (!prefersReducedMotion) {
         if (!isDragging) {
-          // Smooth drag release inertia dampening
+          // 1. Smooth drag release inertia dampening
           if (Math.abs(dragVelocityX) > 0.0001 || Math.abs(dragVelocityY) > 0.0001) {
             basketball.rotation.y += dragVelocityX;
             basketball.rotation.x += dragVelocityY;
@@ -296,11 +342,19 @@ export default function BasketballCanvas() {
             basketball.rotation.x = Math.sin(time * 0.4) * 0.12;
             basketball.position.y = 0.08 + Math.sin(time * 1.5) * 0.035;
           }
+
+          // 2. Physical scroll momentum with smooth damping (Section 19)
+          if (Math.abs(scrollRotVelocity) > 0.0001) {
+            basketball.rotation.x += scrollRotVelocity;
+            scrollRotVelocity *= 0.92;
+          }
         }
 
-        // Smoothly lerp tilt towards mouse
-        targetRotY = mouseX * 0.35;
-        basketball.rotation.z += (targetRotY - basketball.rotation.z) * 0.06;
+        // Smoothly lerp tilt towards mouse (desktop only)
+        if (!isTouch) {
+          targetRotY = mouseX * 0.35;
+          basketball.rotation.z += (targetRotY - basketball.rotation.z) * 0.06;
+        }
 
         // Subtle particle drift
         particles.rotation.y = time * 0.04;
@@ -318,7 +372,7 @@ export default function BasketballCanvas() {
         if (entry.isIntersecting) {
           if (!isRunning) {
             isRunning = true;
-            clock.start();
+            clock.getDelta(); // flush delta to avoid snap
             animate();
           }
         } else {
@@ -336,7 +390,9 @@ export default function BasketballCanvas() {
       observer.disconnect();
       isRunning = false;
       cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       container.removeEventListener('pointermove', handlePointerMove);
       container.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointerup', handlePointerUp);
@@ -368,11 +424,6 @@ export default function BasketballCanvas() {
       ref={containerRef}
       className="relative w-full h-full min-h-[260px] sm:min-h-[340px] md:min-h-[420px] lg:min-h-[480px] cursor-grab active:cursor-grabbing select-none touch-pan-y"
       title="Click and drag to rotate basketball"
-    >
-      <div className="absolute bottom-2 right-4 text-[10px] uppercase font-mono tracking-widest text-zinc-500 pointer-events-none z-10 flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-ping" />
-        Interactive 3D Hardwood
-      </div>
-    </div>
+    />
   );
 }

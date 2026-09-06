@@ -27,7 +27,7 @@ export default function FranchiseManifesto({ teamInfo }: FranchiseManifestoProps
   const bannerImage = teamInfo?.bannerImageUrl || '/brand/post-journey-players.png';
 
   return (
-    <section className="relative py-16 sm:py-24 lg:py-36 bg-[#0B0B0D] overflow-hidden border-b border-surface-border">
+    <section className="relative py-16 sm:py-24 lg:py-36 bg-[#0B0B0D] overflow-hidden border-b border-surface-border scroll-reveal">
       {/* Background Graphic Watermark */}
       <div className="absolute right-0 top-1/2 -translate-y-1/2 select-none pointer-events-none opacity-5">
         <span className="font-display text-[26vw] leading-none font-black text-white">
@@ -60,6 +60,8 @@ export default function FranchiseManifesto({ teamInfo }: FranchiseManifestoProps
               <img
                 src={bannerImage}
                 alt="Nizam Nawabs Starting Core"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-[280px] sm:h-[420px] md:h-[520px] lg:h-[620px] object-cover object-center group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-95 group-hover:brightness-100"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-90 group-hover:opacity-95 transition-opacity duration-300" />
