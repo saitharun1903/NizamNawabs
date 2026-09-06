@@ -15,12 +15,28 @@ interface MatchItem {
   status: string;
 }
 
+function formatTickerDate(dateStr: string) {
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parts[2];
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      if (monthIndex >= 0 && monthIndex < 12) {
+        return `${parseInt(day, 10)} ${months[monthIndex]} ${year}`;
+      }
+    }
+  } catch {}
+  return dateStr;
+}
+
 export default function ScoreTicker({ matches = [] }: { matches: MatchItem[] }) {
   if (!matches || matches.length === 0) {
     return (
-      <div className="bg-surface-dark border-y border-surface-border py-2.5 px-4 text-center">
+      <div className="bg-surface-dark border-y border-surface-border py-2.5 px-4 text-center select-none">
         <p className="text-xs uppercase font-sans font-bold tracking-wider text-zinc-400">
-          TPBL Season 2 Schedule Announcement Coming Soon • Stay Tuned
+          SCHEDULE ANNOUNCEMENT COMING SOON • STAY TUNED
         </p>
       </div>
     );
@@ -32,13 +48,14 @@ export default function ScoreTicker({ matches = [] }: { matches: MatchItem[] }) 
         {/* Label Tag */}
         <div className="bg-brand-orange text-white px-4 py-2.5 min-h-[40px] flex items-center justify-center gap-2 shrink-0 font-sans font-extrabold tracking-wider text-xs uppercase shadow-md">
           <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-          <span>TPBL HARDWOOD CENTRAL</span>
+          <span>HARDWOOD CENTRAL</span>
         </div>
 
         {/* Matches strip */}
         <div className="flex-1 overflow-x-auto no-scrollbar touch-momentum flex items-center divide-x divide-surface-border/80">
-          {matches.slice(0, 4).map((m) => {
-            const isCompleted = m.status === 'Completed';
+          {matches.slice(0, 5).map((m) => {
+            const isCompleted = m.status?.toLowerCase() === 'completed';
+            const isLive = m.status?.toLowerCase() === 'live';
             return (
               <div
                 key={m.id}
@@ -54,7 +71,11 @@ export default function ScoreTicker({ matches = [] }: { matches: MatchItem[] }) 
                     </span>
                     {isCompleted ? (
                       <span className="px-2 py-0.5 rounded bg-black/70 font-display font-black text-white text-sm tracking-tight border border-surface-border">
-                        {m.homeScore} : {m.awayScore}
+                        {`${m.homeScore ?? 0} : ${m.awayScore ?? 0}`}
+                      </span>
+                    ) : isLive ? (
+                      <span className="px-2 py-0.5 rounded bg-red-950/80 font-display font-black text-red-400 text-sm tracking-tight border border-red-800 animate-pulse">
+                        {`${m.homeScore ?? 0} : ${m.awayScore ?? 0}`}
                       </span>
                     ) : (
                       <span className="text-zinc-500 font-sans font-bold text-[11px]">VS</span>
@@ -68,7 +89,8 @@ export default function ScoreTicker({ matches = [] }: { matches: MatchItem[] }) 
                 <div className="flex flex-col text-[10px] text-zinc-400 font-sans font-medium">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3 h-3 text-zinc-500" />
-                    {m.matchDate}
+                    {formatTickerDate(m.matchDate)}
+                    {m.matchTime && <span className="text-zinc-500">• {m.matchTime}</span>}
                   </span>
                   <span className="flex items-center gap-1 text-zinc-500 truncate max-w-[120px]">
                     <MapPin className="w-3 h-3" />
@@ -78,7 +100,9 @@ export default function ScoreTicker({ matches = [] }: { matches: MatchItem[] }) 
 
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider ${
-                    isCompleted
+                    isLive
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse'
+                      : isCompleted
                       ? 'bg-zinc-800 text-zinc-300 border border-zinc-700'
                       : 'bg-brand-orange/15 text-brand-orange border border-brand-orange/30'
                   }`}

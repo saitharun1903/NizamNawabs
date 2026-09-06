@@ -6,7 +6,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function TeamPage() {
   const teamInfo = await prisma.teamInfo.findUnique({ where: { id: 'default' } });
-  const season1 = await prisma.season.findFirst({ where: { seasonNumber: 1 } });
+  const featuredSeason =
+    (await prisma.season.findFirst({ where: { isCurrent: true } })) ||
+    (await prisma.season.findFirst({ orderBy: { seasonNumber: 'desc' } }));
 
   return (
     <div className="py-24 space-y-20 bg-brand-black">
@@ -89,13 +91,13 @@ export default async function TeamPage() {
               </div>
               <div className="space-y-1">
                 <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-brand-orange">
-                  TPBL SEASON 1 SILVERWARE
+                  {featuredSeason?.seasonName ? `${featuredSeason.seasonName.toUpperCase()} SILVERWARE` : 'OFFICIAL HONORS'}
                 </span>
                 <h4 className="font-display font-black text-2xl text-white tracking-tight uppercase">
-                  SEASON 1 RUNNERS UP
+                  {featuredSeason?.achievement ? `${featuredSeason.seasonName.toUpperCase()} ${featuredSeason.achievement.toUpperCase()}` : 'CHAMPIONSHIP FINALISTS'}
                 </h4>
                 <p className="text-xs text-zinc-400 font-sans">
-                  {teamInfo?.achievementSummary ||
+                  {featuredSeason?.description || teamInfo?.achievementSummary ||
                     'Historic finalists in the inaugural Telangana Pro Basketball League championship.'}
                 </p>
               </div>

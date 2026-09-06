@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/db';
+import { revalidatePublicPaths } from '@/lib/revalidate';
 
 export async function GET() {
   const session = await getSession();
@@ -40,6 +41,8 @@ export async function POST(request: Request) {
         userEmail: session.email,
       },
     });
+
+    revalidatePublicPaths('/');
 
     return NextResponse.json({ success: true, sponsor });
   } catch (error: any) {

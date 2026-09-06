@@ -32,7 +32,7 @@ export default function InteractiveRosterStage({ players }: InteractiveRosterSta
       <section className="py-24 bg-[#09090B] text-center border-b border-surface-border">
         <p className="font-display font-black text-2xl text-zinc-400 tracking-tight">ROSTER ANNOUNCEMENT IN PROGRESS</p>
         <p className="text-xs text-zinc-400 pt-2 font-sans">
-          Official Season 2 player registrations updating soon.
+          Official squad player registrations updating soon.
         </p>
       </section>
     );
@@ -168,38 +168,54 @@ export default function InteractiveRosterStage({ players }: InteractiveRosterSta
             {/* Bio Editorial Summary — Natural Sentence Case Manrope */}
             <p className="text-sm sm:text-base md:text-lg text-zinc-300 font-sans leading-[1.7] max-w-xl font-normal">
               {currentPlayer.bio ||
-                'Franchise asset recognized for aggressive perimeter defense, electric court tempo, and leadership across the TPBL Season 1 campaign.'}
+                `${currentPlayer.name} plays ${currentPlayer.position} for the Nizam Nawabs, bringing athletic intensity and court leadership to the Telangana squad.`}
             </p>
 
-            {/* Athletic Metrics Grid */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-surface-card border border-surface-border">
-              <div className="space-y-1">
-                <span className="text-[10px] sm:text-[11px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
-                  PTS / GM
-                </span>
-                <span className="font-display text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight font-black">
-                  {currentPlayer.ppg > 0 ? currentPlayer.ppg.toFixed(1) : '—'}
-                </span>
-              </div>
+            {/* Athletic Metrics Grid or STATS TBA */}
+            {currentPlayer.ppg > 0 || currentPlayer.rpg > 0 || currentPlayer.apg > 0 ? (
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-surface-card border border-surface-border">
+                <div className="space-y-1">
+                  <span className="text-[10px] sm:text-[11px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
+                    PTS / GM
+                  </span>
+                  <span className="font-display text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight font-black">
+                    {currentPlayer.ppg > 0 ? currentPlayer.ppg.toFixed(1) : '—'}
+                  </span>
+                </div>
 
-              <div className="space-y-1 border-x border-surface-border/60 px-2 sm:px-4">
-                <span className="text-[10px] sm:text-[11px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
-                  REB / GM
-                </span>
-                <span className="font-display text-3xl sm:text-4xl lg:text-5xl text-brand-orange tracking-tight font-black">
-                  {currentPlayer.rpg > 0 ? currentPlayer.rpg.toFixed(1) : '—'}
-                </span>
-              </div>
+                <div className="space-y-1 border-x border-surface-border/60 px-2 sm:px-4">
+                  <span className="text-[10px] sm:text-[11px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
+                    REB / GM
+                  </span>
+                  <span className="font-display text-3xl sm:text-4xl lg:text-5xl text-brand-orange tracking-tight font-black">
+                    {currentPlayer.rpg > 0 ? currentPlayer.rpg.toFixed(1) : '—'}
+                  </span>
+                </div>
 
-              <div className="space-y-1 pl-1 sm:pl-2">
-                <span className="text-[10px] sm:text-[11px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
-                  AST / GM
-                </span>
-                <span className="font-display text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight font-black">
-                  {currentPlayer.apg > 0 ? currentPlayer.apg.toFixed(1) : '—'}
+                <div className="space-y-1 pl-1 sm:pl-2">
+                  <span className="text-[10px] sm:text-[11px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
+                    AST / GM
+                  </span>
+                  <span className="font-display text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight font-black">
+                    {currentPlayer.apg > 0 ? currentPlayer.apg.toFixed(1) : '—'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5 rounded-2xl bg-surface-card border border-surface-border/80 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <span className="text-[11px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
+                    ATHLETIC METRICS
+                  </span>
+                  <span className="text-xs text-zinc-400 font-sans">
+                    Season match box scores pending verification
+                  </span>
+                </div>
+                <span className="px-3 py-1 rounded-md bg-white/5 border border-surface-border text-zinc-400 font-sans text-xs font-bold uppercase tracking-wider">
+                  STATS TBA
                 </span>
               </div>
-            </div>
+            )}
 
             {/* Height & Spec Tag */}
             {currentPlayer.height && (

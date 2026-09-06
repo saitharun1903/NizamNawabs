@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/db';
+import { revalidatePublicPaths } from '@/lib/revalidate';
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   const session = await getSession();
@@ -42,6 +43,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       },
     });
 
+    revalidatePublicPaths('/news');
+
     return NextResponse.json({ success: true, article: updated });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Failed to update article' }, { status: 500 });
@@ -67,6 +70,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         userEmail: session.email,
       },
     });
+
+    revalidatePublicPaths('/news');
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

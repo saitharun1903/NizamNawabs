@@ -28,6 +28,7 @@ model SiteSetting {
   aiAssistantName  String   @default("Nizam Nawabs Assistant")
   aiWelcomeMessage String   @default("Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?")
   aiSuggestedPrompts String @default("Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news")
+  tickerText       String   @default("")
   updatedAt        DateTime @updatedAt
 }
 

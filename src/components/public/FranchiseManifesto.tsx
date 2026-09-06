@@ -88,10 +88,10 @@ export default function FranchiseManifesto({ teamInfo }: FranchiseManifestoProps
                     OFFICIAL HONORS
                   </span>
                   <span className="font-display font-black text-xl text-white tracking-tight block uppercase">
-                    TPBL SEASON 1
+                    {teamInfo?.achievementSummary?.split('.')[0] || 'TPBL HONORS'}
                   </span>
                   <span className="text-xs font-sans font-bold text-brand-orange uppercase tracking-wider">
-                    RUNNERS UP • FINALISTS
+                    {teamInfo?.achievementSummary?.split('.')[1]?.trim() || 'FINALISTS'}
                   </span>
                 </div>
               </div>

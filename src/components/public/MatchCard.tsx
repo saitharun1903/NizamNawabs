@@ -19,9 +19,26 @@ interface MatchProps {
   };
 }
 
+function formatMatchDate(dateStr: string) {
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parts[2];
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      if (monthIndex >= 0 && monthIndex < 12) {
+        return `${parseInt(day, 10)} ${months[monthIndex]} ${year}`;
+      }
+    }
+  } catch {}
+  return dateStr;
+}
+
 export default function MatchCard({ match }: MatchProps) {
-  const isCompleted = match.status === 'Completed';
-  const isUpcoming = match.status === 'Upcoming';
+  const isCompleted = match.status?.toLowerCase() === 'completed';
+  const isLive = match.status?.toLowerCase() === 'live';
+  const isUpcoming = match.status?.toLowerCase() === 'upcoming';
 
   return (
     <div className="bg-surface-card border border-surface-border rounded-xl p-4 sm:p-6 hover:border-brand-orange/50 transition-all duration-300 shadow-xl space-y-5 sm:space-y-6">
@@ -32,7 +49,9 @@ export default function MatchCard({ match }: MatchProps) {
         </span>
         <span
           className={`px-2.5 py-1 rounded text-[10px] font-sans font-bold uppercase tracking-wider ${
-            isCompleted
+            isLive
+              ? 'bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse'
+              : isCompleted
               ? 'bg-zinc-800 text-zinc-300 border border-zinc-700'
               : 'bg-brand-orange/20 text-brand-orange border border-brand-orange/40 animate-pulse'
           }`}
@@ -61,7 +80,7 @@ export default function MatchCard({ match }: MatchProps) {
         <div className="col-span-1 flex flex-col items-center justify-center">
           {isCompleted ? (
             <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded bg-brand-black border border-surface-border font-display text-xl sm:text-3xl font-black text-white shadow-inner tracking-tight">
-              {match.homeScore} - {match.awayScore}
+              {`${match.homeScore} - ${match.awayScore}`}
             </div>
           ) : (
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-brand-black border border-surface-border flex items-center justify-center font-display font-bold text-xs sm:text-sm text-zinc-400">
@@ -89,7 +108,7 @@ export default function MatchCard({ match }: MatchProps) {
       <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-400 font-sans border-t border-surface-border/40">
         <div className="flex items-center gap-2">
           <Calendar className="w-3.5 h-3.5 text-brand-orange shrink-0" />
-          <span>{match.matchDate}</span>
+          <span>{formatMatchDate(match.matchDate)}</span>
           <span className="text-zinc-600">•</span>
           <Clock className="w-3.5 h-3.5 text-brand-orange shrink-0" />
           <span>{match.matchTime} IST</span>

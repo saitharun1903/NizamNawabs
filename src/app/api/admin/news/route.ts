@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/db';
+import { revalidatePublicPaths } from '@/lib/revalidate';
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -65,6 +66,8 @@ export async function POST(request: Request) {
         userEmail: session.email,
       },
     });
+
+    revalidatePublicPaths('/news');
 
     return NextResponse.json({ success: true, article });
   } catch (error: any) {

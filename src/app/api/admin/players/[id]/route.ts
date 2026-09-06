@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/db';
+import { revalidatePublicPaths } from '@/lib/revalidate';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const session = await getSession();
@@ -50,6 +51,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       },
     });
 
+    revalidatePublicPaths('/roster');
+
     return NextResponse.json({ success: true, player: updated });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Failed to update player' }, { status: 500 });
@@ -75,6 +78,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         userEmail: session.email,
       },
     });
+
+    revalidatePublicPaths('/roster');
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

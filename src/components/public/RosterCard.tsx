@@ -72,33 +72,42 @@ export default function RosterCard({ player }: PlayerProps) {
           )}
         </div>
 
-        {/* Athletic Stats Grid */}
-        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-surface-border/60 text-center bg-brand-black/40 rounded p-2">
-          <div>
-            <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-zinc-400 block">
-              PPG
-            </span>
-            <span className="font-display font-black text-lg text-white tracking-tight">
-              {player.ppg > 0 ? player.ppg.toFixed(1) : '-'}
+        {/* Athletic Stats Grid or STATS TBA */}
+        {player.ppg > 0 || player.rpg > 0 || player.apg > 0 ? (
+          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-surface-border/60 text-center bg-brand-black/40 rounded p-2">
+            <div>
+              <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-zinc-400 block">
+                PPG
+              </span>
+              <span className="font-display font-black text-lg text-white tracking-tight">
+                {player.ppg > 0 ? player.ppg.toFixed(1) : '—'}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-zinc-400 block">
+                RPG
+              </span>
+              <span className="font-display font-black text-lg text-brand-orange tracking-tight">
+                {player.rpg > 0 ? player.rpg.toFixed(1) : '—'}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-zinc-400 block">
+                APG
+              </span>
+              <span className="font-display font-black text-lg text-white tracking-tight">
+                {player.apg > 0 ? player.apg.toFixed(1) : '—'}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="pt-3 border-t border-surface-border/60 flex items-center justify-between text-xs text-zinc-400 font-sans">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400">METRICS</span>
+            <span className="px-2 py-0.5 rounded bg-white/5 border border-surface-border text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
+              STATS TBA
             </span>
           </div>
-          <div>
-            <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-zinc-400 block">
-              RPG
-            </span>
-            <span className="font-display font-black text-lg text-white tracking-tight">
-              {player.rpg > 0 ? player.rpg.toFixed(1) : '-'}
-            </span>
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-zinc-400 block">
-              APG
-            </span>
-            <span className="font-display font-black text-lg text-white tracking-tight">
-              {player.apg > 0 ? player.apg.toFixed(1) : '-'}
-            </span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -29,6 +29,7 @@ export default function AdminSettingsPage() {
     aiAssistantName: 'Nizam Nawabs Assistant',
     aiWelcomeMessage: "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?",
     aiSuggestedPrompts: "Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news",
+    tickerText: '',
   });
 
   const loadSettings = async () => {
@@ -289,6 +290,30 @@ export default function AdminSettingsPage() {
               <p>
                 🔒 <strong className="text-zinc-300">Security Notice:</strong> The Google Gemini API key (<code className="text-orange-400">GEMINI_API_KEY</code>) is stored exclusively in server environment variables and is never exposed in the CMS or browser.
               </p>
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-zinc-800">
+            <div className="border-b border-zinc-800 pb-2">
+              <h3 className="text-xs font-mono font-bold text-orange-400 uppercase tracking-widest">
+                Marquee Ticker (Orange Ribbon)
+              </h3>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Configure custom text phrases for the kinetic orange marquee on the public website. Separate phrases with bullets (•), semicolons, or newlines. If left blank, the marquee dynamically auto-assembles from verified live data (active season, next match, latest result, and arena).
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-zinc-300 uppercase">
+                Custom Marquee Phrases (Optional)
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Leave blank for automatic live data generation, OR enter custom phrases: NIZAM NAWABS • TELANGANA PRO BASKETBALL • UNSTOPPABLE SPIRIT"
+                value={settings.tickerText || ''}
+                onChange={(e) => setSettings({ ...settings, tickerText: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500 font-mono leading-relaxed"
+              />
             </div>
           </div>
 

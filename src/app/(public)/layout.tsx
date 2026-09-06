@@ -14,7 +14,19 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let settings = await prisma.siteSetting.findUnique({ where: { id: 'default' } });
+  const [settingsData, navItems, teamInfo, activeSeason] = await Promise.all([
+    prisma.siteSetting.findUnique({ where: { id: 'default' } }),
+    prisma.navigationItem.findMany({
+      where: { isVisible: true },
+      orderBy: { displayOrder: 'asc' },
+    }),
+    prisma.teamInfo.findUnique({ where: { id: 'default' } }),
+    prisma.season.findFirst({
+      where: { isCurrent: true },
+    }),
+  ]);
+
+  let settings = settingsData;
   if (!settings) {
     settings = {
       id: 'default',
@@ -37,14 +49,14 @@ export default async function PublicLayout({
       aiAssistantName: 'Nizam Nawabs Assistant',
       aiWelcomeMessage: "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?",
       aiSuggestedPrompts: "Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news",
+      tickerText: '',
       updatedAt: new Date(),
     };
   }
 
-  const navItems = await prisma.navigationItem.findMany({
-    where: { isVisible: true },
-    orderBy: { displayOrder: 'asc' },
-  });
+  const achievementBadge = activeSeason?.achievement
+    ? `${activeSeason.seasonName.toUpperCase()} ${activeSeason.achievement.toUpperCase()}`
+    : teamInfo?.achievementSummary?.split('.')[0] || 'TELANGANA PRO BASKETBALL';
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-black text-brand-white">
@@ -74,6 +86,7 @@ export default async function PublicLayout({
           contactEmail: settings.contactEmail,
           location: settings.location,
         }}
+        achievementBadge={achievementBadge}
       />
       <AIAssistant
         initialSettings={{

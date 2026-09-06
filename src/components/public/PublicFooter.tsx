@@ -13,9 +13,10 @@ interface PublicFooterProps {
     contactEmail: string;
     location: string;
   };
+  achievementBadge?: string;
 }
 
-export default function PublicFooter({ settings }: PublicFooterProps) {
+export default function PublicFooter({ settings, achievementBadge }: PublicFooterProps) {
   const teamName = settings?.teamName || 'Nizam Nawabs';
   const tagline = settings?.tagline || 'Bold basketball, local pride, unstoppable spirit';
   const footerText = settings?.footerText || '© Nizam Nawabs Professional Basketball Club. Telangana, India.';
@@ -55,7 +56,7 @@ export default function PublicFooter({ settings }: PublicFooterProps) {
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-xs font-sans font-bold tracking-wider text-brand-orange uppercase">
               <Trophy className="w-3.5 h-3.5 text-brand-orange" />
-              <span>TPBL SEASON 1 RUNNERS UP</span>
+              <span>{achievementBadge || 'TELANGANA PRO BASKETBALL'}</span>
             </div>
 
             <div className="flex items-center gap-3 pt-2">

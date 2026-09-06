@@ -17,9 +17,10 @@ interface EditorialHeroProps {
     secondaryCtaUrl?: string;
     eyebrow?: string;
   } | null;
+  achievementBadge?: string;
 }
 
-export default function EditorialHero({ heroData }: EditorialHeroProps) {
+export default function EditorialHero({ heroData, achievementBadge }: EditorialHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const title1Ref = useRef<HTMLHeadingElement>(null);
   const title2Ref = useRef<HTMLHeadingElement>(null);
@@ -138,7 +139,7 @@ export default function EditorialHero({ heroData }: EditorialHeroProps) {
           <div className="flex items-center gap-3">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-brand-orange/15 border border-brand-orange/40 text-brand-orange font-sans font-bold uppercase text-xs tracking-wider">
               <Trophy className="w-3 h-3 text-brand-orange" />
-              <span>TPBL SEASON 1 RUNNERS UP</span>
+              <span>{achievementBadge || 'TELANGANA PRO BASKETBALL'}</span>
             </div>
             <span className="text-zinc-400 font-sans font-semibold text-[10px] uppercase tracking-wider hidden md:inline">
               OFFICIAL FRANCHISE
