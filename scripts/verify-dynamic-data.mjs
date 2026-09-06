@@ -81,9 +81,25 @@ async function runTests() {
   console.log('\nTest 4: Roster Stage & Athletes');
   assert(homeHtml1.includes('Nawabs Captain') || homeHtml1.includes('Lead Playmaker'), 'Real players displayed from database');
 
+  const testPlayer = await prisma.player.create({
+    data: {
+      name: 'Automated Test Player',
+      jerseyNumber: 99,
+      position: 'Forward',
+      height: '6-6',
+      ppg: 0,
+      rpg: 0,
+      apg: 0,
+      isActive: true,
+      bio: 'Dynamic verification test player',
+    },
+  });
+
   const rosterHtml = await fetchPage('/roster');
   assert(rosterHtml.includes('Automated Test Player'), 'Player #99 exists in roster');
   assert(rosterHtml.includes('STATS TBA'), 'Unrecorded stats gracefully display STATS TBA instead of fake metrics');
+
+  await prisma.player.delete({ where: { id: testPlayer.id } });
 
   // ----------------------------------------------------
   // TEST 5: Custom Marquee Ticker CMS update and instant reflection
