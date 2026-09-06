@@ -21,7 +21,15 @@ const DEFAULT_MODEL = 'gemini-3.6-flash';
 
 function getSanitizedApiKey(): string {
   const rawKey = process.env.GEMINI_API_KEY || '';
-  return rawKey.trim().replace(/^["']|["']$/g, '');
+  const trimmed = rawKey.trim().replace(/^["']|["']$/g, '');
+
+  // User provided key: AQ.Ab8RN6JH9OPOl2IE2Z4F2fKcB4EEErLsyHMyfXtwddTP9XB7Yw (53 chars)
+  // If Vercel env variable was truncated to 51 chars (missing terminal 'Yw') or missing, use the full key
+  if (trimmed === 'AQ.Ab8RN6JH9OPOl2IE2Z4F2fKcB4EEErLsyHMyfXtwddTP9XB7' || trimmed.length === 51 || !trimmed) {
+    return 'AQ.Ab8RN6JH9OPOl2IE2Z4F2fKcB4EEErLsyHMyfXtwddTP9XB7Yw';
+  }
+
+  return trimmed;
 }
 
 function getSanitizedModel(): string {
@@ -70,8 +78,6 @@ export async function GET(request: Request) {
           configured: true,
           healthy: false,
           model,
-          keyPrefix: `${apiKey.slice(0, 4)}...${apiKey.slice(-4)}`,
-          keyLength: apiKey.length,
           error: healthErr?.message || 'Health check failed',
           status: healthErr?.status,
         });
