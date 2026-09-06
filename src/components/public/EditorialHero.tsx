@@ -5,6 +5,7 @@ import Link from 'next/link';
 import BasketballCanvas from '@/components/3d/BasketballCanvas';
 import { Trophy, ArrowDown, ChevronRight, Play, Flame } from 'lucide-react';
 import gsap from 'gsap';
+import { MOTION, isReducedMotion } from '@/lib/motion';
 
 interface EditorialHeroProps {
   heroData?: {
@@ -26,39 +27,71 @@ export default function EditorialHero({ heroData }: EditorialHeroProps) {
   const ctaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Respect reduced motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
+    if (isReducedMotion()) return;
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    let hasPlayed = false;
+    let fallbackTimer: NodeJS.Timeout | null = null;
+
+    const runEntrance = () => {
+      if (hasPlayed) return;
+      hasPlayed = true;
+
+      const tl = gsap.timeline({ defaults: { ease: MOTION.ease.out } });
 
       tl.fromTo(
         metaRef.current,
-        { opacity: 0, y: -20 },
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.2 }
+        { opacity: 0, y: -16 },
+        { opacity: 1, y: 0, duration: 0.6 }
       )
         .fromTo(
           title1Ref.current,
-          { opacity: 0, y: 80, scale: 0.95 },
-          { opacity: 1, y: 0, scale: 1, duration: 1.1 },
-          '-=0.4'
+          { opacity: 0, y: 60, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.85 },
+          '-=0.3'
         )
         .fromTo(
           title2Ref.current,
-          { opacity: 0, y: 80, scale: 0.95 },
-          { opacity: 1, y: 0, scale: 1, duration: 1.1 },
-          '-=0.8'
+          { opacity: 0, y: 60, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.85 },
+          '-=0.6'
         )
         .fromTo(
           ctaRef.current,
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          '-=0.5'
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.65 },
+          '-=0.4'
         );
-    }, containerRef);
+    };
 
-    return () => ctx.revert();
+    // Check if intro is playing or already seen
+    let alreadySeen = false;
+    let forceIntro = false;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      forceIntro = params.get('intro') === '1';
+      alreadySeen = Boolean(sessionStorage.getItem('nizam_intro_seen'));
+    } catch {
+      // storage access fallback
+    }
+
+    if (alreadySeen && !forceIntro) {
+      // Intro will not play, run hero entrance immediately
+      runEntrance();
+    } else {
+      // Listen for intro reveal broadcast
+      const handleIntroReveal = () => {
+        runEntrance();
+      };
+      window.addEventListener('nizam:intro-reveal', handleIntroReveal, { once: true });
+
+      // Fallback safeguard: if intro event doesn't fire within 2.4s, animate anyway
+      fallbackTimer = setTimeout(runEntrance, 2400);
+
+      return () => {
+        window.removeEventListener('nizam:intro-reveal', handleIntroReveal);
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+      };
+    }
   }, []);
 
   return (
@@ -174,15 +207,15 @@ export default function EditorialHero({ heroData }: EditorialHeroProps) {
           <div className="md:col-span-6 flex flex-col sm:flex-row items-stretch sm:items-center md:justify-end gap-3 sm:gap-4 w-full">
             <Link
               href={heroData?.ctaUrl || '/roster'}
-              className="inline-flex items-center justify-center gap-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white px-6 py-3.5 min-h-[48px] rounded-xl font-sans font-bold uppercase tracking-wider text-xs transition-all shadow-lg shadow-brand-orange/25 group text-center"
+              className="btn-motion inline-flex items-center justify-center gap-2.5 bg-brand-orange hover:bg-brand-orangeHover text-white px-6 py-3.5 min-h-[48px] rounded-xl font-sans font-bold uppercase tracking-wider text-xs shadow-lg shadow-brand-orange/25 group text-center"
             >
               <span>{heroData?.ctaLabel || 'VIEW ROSTER'}</span>
-              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-200" />
             </Link>
 
             <Link
               href={heroData?.secondaryCtaUrl || '/matches'}
-              className="inline-flex items-center justify-center gap-2.5 bg-surface-card hover:bg-surface-elevated border border-surface-border text-white px-6 py-3.5 min-h-[48px] rounded-xl font-sans font-bold uppercase tracking-wider text-xs transition-all group text-center"
+              className="btn-motion inline-flex items-center justify-center gap-2.5 bg-surface-card hover:bg-surface-elevated border border-surface-border hover:border-surface-borderHover text-white px-6 py-3.5 min-h-[48px] rounded-xl font-sans font-bold uppercase tracking-wider text-xs group text-center"
             >
               <Play className="w-3 h-3 text-brand-orange fill-brand-orange" />
               <span>{heroData?.secondaryCtaLabel || 'MATCH HIGHLIGHTS'}</span>
@@ -195,7 +228,7 @@ export default function EditorialHero({ heroData }: EditorialHeroProps) {
           <span>01 / ARCHITECTURAL OPENING</span>
           <div className="flex items-center gap-2 text-zinc-400">
             <span className="hidden sm:inline">SCROLL TO DISCOVER</span>
-            <ArrowDown className="w-3.5 h-3.5 animate-bounce text-brand-orange" />
+            <ArrowDown className="w-3.5 h-3.5 text-brand-orange opacity-75 animate-pulse" />
           </div>
         </div>
       </div>

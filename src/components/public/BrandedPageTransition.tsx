@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import gsap from 'gsap';
+import { MOTION, isReducedMotion } from '@/lib/motion';
 
 interface BrandedPageTransitionProps {
   children: React.ReactNode;
@@ -83,90 +84,136 @@ export default function BrandedPageTransition({ children }: BrandedPageTransitio
     return () => document.removeEventListener('click', handleDocumentClick, { capture: true });
   }, []);
 
-  // Starts the transition sequence
+  // Starts the master transition sequence
   const startTransition = (targetHref: string) => {
     isNavigatingRef.current = true;
     targetPathRef.current = targetHref;
     setIsTransitioning(true);
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = isReducedMotion();
 
-    // Overlay entrance & single logo rotation
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
 
       if (prefersReducedMotion) {
-        // Reduced motion: Clean, gentle fade without rotation
-        tl.to(overlayRef.current, { opacity: 1, duration: 0.15, ease: 'power2.out' })
-          .to(logoWrapperRef.current, { opacity: 1, scale: 1, duration: 0.15, ease: 'power2.out' }, 0.05)
+        // Reduced motion: Clean instantaneous fade without rotation
+        tl.to(overlayRef.current, { opacity: 1, duration: 0.15, ease: MOTION.ease.out })
           .call(() => {
+            window.scrollTo(0, 0);
             router.push(targetHref);
-          }, undefined, 0.2);
+          }, undefined, 0.15);
       } else {
-        // Step 1: Dark overlay and ambient glow appear (0.00s - 0.12s)
+        // Step 1: Initialize states
         gsap.set(overlayRef.current, { opacity: 0, display: 'flex' });
-        gsap.set(logoWrapperRef.current, { opacity: 0, scale: 0.82 });
+        gsap.set(logoWrapperRef.current, { opacity: 0, scale: 0.84 });
         gsap.set(logoImgRef.current, { rotation: 0 });
-        gsap.set(textRef.current, { opacity: 0, y: 8 });
+        gsap.set(textRef.current, { opacity: 0, y: 10 });
+        gsap.set(glowRef.current, { opacity: 0, scale: 0.85 });
 
-        tl.to(overlayRef.current, {
-          opacity: 1,
-          duration: 0.14,
-          ease: 'power2.out',
-        })
-          // Step 2: Logo scales in gently (0.05s - 0.20s)
+        // 0.05s: Outgoing page begins gentle exit
+        if (contentWrapperRef.current) {
+          tl.to(
+            contentWrapperRef.current,
+            {
+              opacity: 0.35,
+              scale: 0.985,
+              y: -8,
+              duration: 0.22,
+              ease: MOTION.ease.inOut,
+            },
+            0.05
+          );
+        }
+
+        // 0.10s: Branded dark overlay enters smoothly
+        tl.to(
+          overlayRef.current,
+          {
+            opacity: 1,
+            duration: 0.18,
+            ease: MOTION.ease.out,
+          },
+          0.1
+        )
+          // 0.12s: Radial amber glow expands
+          .to(
+            glowRef.current,
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.3,
+              ease: MOTION.ease.out,
+            },
+            0.12
+          )
+          // 0.15s: Logo scales in gently
           .to(
             logoWrapperRef.current,
             {
               opacity: 1,
               scale: 1,
-              duration: 0.18,
-              ease: 'power2.out',
+              duration: 0.2,
+              ease: MOTION.ease.out,
             },
-            0.05
+            0.15
           )
-          // Step 3: Brand text reveals cleanly (0.10s)
+          // 0.18s: Brand typography reveals
           .to(
             textRef.current,
             {
               opacity: 1,
               y: 0,
               duration: 0.2,
-              ease: 'power2.out',
+              ease: MOTION.ease.out,
             },
-            0.1
+            0.18
           )
-          // Step 4: One single, controlled, stately 360° rotation (0.12s - 0.55s)
+          // 0.20s - 0.55s: ONE smooth controlled 360-degree rotation
           .to(
             logoImgRef.current,
             {
               rotation: 360,
-              duration: 0.44,
-              ease: 'power2.inOut',
+              duration: 0.42,
+              ease: MOTION.ease.inOut,
             },
-            0.12
+            0.2
           )
-          // Step 5: Trigger router navigation during rotation so route fetches concurrently
+          // 0.28s: Trigger route push concurrently
           .call(
             () => {
               router.push(targetHref);
             },
             undefined,
-            0.22
+            0.28
+          )
+          // 0.58s - 0.65s: Logo gently settles with micro-dampening
+          .to(
+            logoWrapperRef.current,
+            {
+              scale: 1.02,
+              duration: 0.1,
+              ease: MOTION.ease.out,
+              yoyo: true,
+              repeat: 1,
+            },
+            0.58
           );
       }
     });
 
-    // Safety fallback timeout in case route transition hangs (1.4s max)
+    // Failsafe timeout (1.2s) ensures user is never trapped
     setTimeout(() => {
       if (isNavigatingRef.current) {
         finishTransition();
       }
-    }, 1400);
+    }, 1200);
   };
 
   // Finishes the transition once the new route is active
   const finishTransition = () => {
+    // Scroll to top while overlay is fully covering the viewport (zero visible jump!)
+    window.scrollTo(0, 0);
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         onComplete: () => {
@@ -180,16 +227,23 @@ export default function BrandedPageTransition({ children }: BrandedPageTransitio
       tl.to(overlayRef.current, {
         opacity: 0,
         scale: 1.02,
-        duration: 0.22,
-        ease: 'power2.inOut',
+        duration: 0.26,
+        ease: MOTION.ease.inOut,
       });
 
       // New page container reveals with smooth subtle drift
       if (contentWrapperRef.current) {
         tl.fromTo(
           contentWrapperRef.current,
-          { opacity: 0.6, y: 12 },
-          { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' },
+          { opacity: 0, y: 16, scale: 1 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.32,
+            ease: MOTION.ease.out,
+            clearProps: 'transform,opacity,scale',
+          },
           0.05
         );
       }
@@ -211,14 +265,21 @@ export default function BrandedPageTransition({ children }: BrandedPageTransitio
         // Link navigation route change: wait small buffer for logo rotation settle then finish
         setTimeout(() => {
           finishTransition();
-        }, 120);
+        }, 140);
       } else {
-        // Browser Back / Forward navigation: subtle page reveal
+        // Browser Back / Forward navigation: smooth fluid reveal
+        window.scrollTo(0, 0);
         if (contentWrapperRef.current) {
           gsap.fromTo(
             contentWrapperRef.current,
-            { opacity: 0.7, y: 10 },
-            { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out' }
+            { opacity: 0.7, y: 12 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.3,
+              ease: MOTION.ease.out,
+              clearProps: 'transform,opacity',
+            }
           );
         }
       }

@@ -56,13 +56,13 @@ export default function FranchiseManifesto({ teamInfo }: FranchiseManifestoProps
           {/* Visual Column: Large Dominant Team Visual with Floating Badge */}
           <div className="lg:col-span-7 relative group">
             {/* Main Visual Frame */}
-            <div className="relative overflow-hidden rounded-2xl border border-surface-border/90 shadow-2xl bg-black">
+            <div className="relative overflow-hidden rounded-2xl border border-surface-border/90 hover:border-surface-borderHover transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-2xl bg-black">
               <img
                 src={bannerImage}
                 alt="Nizam Nawabs Starting Core"
-                className="w-full h-[280px] sm:h-[420px] md:h-[520px] lg:h-[620px] object-cover object-center group-hover:scale-105 transition-transform duration-1000 filter brightness-95"
+                className="w-full h-[280px] sm:h-[420px] md:h-[520px] lg:h-[620px] object-cover object-center group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-95 group-hover:brightness-100"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-90 group-hover:opacity-95 transition-opacity duration-300" />
 
               {/* Lower Overlay Content */}
               <div className="absolute bottom-4 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8 space-y-2">

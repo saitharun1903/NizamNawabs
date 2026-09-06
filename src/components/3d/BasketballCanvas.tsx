@@ -217,14 +217,15 @@ export default function BasketballCanvas() {
     fillBlueLight.position.set(-3, 2, 2);
     scene.add(fillBlueLight);
 
-    // Mouse Tracking & Interaction
+    // Mouse Tracking & Interaction with Momentum Lerp
     let mouseX = 0;
     let mouseY = 0;
-    let targetRotX = 0;
     let targetRotY = 0;
     let isDragging = false;
     let prevMouseX = 0;
     let prevMouseY = 0;
+    let dragVelocityX = 0;
+    let dragVelocityY = 0;
 
     const handlePointerMove = (e: PointerEvent) => {
       const rect = container.getBoundingClientRect();
@@ -236,8 +237,10 @@ export default function BasketballCanvas() {
       if (isDragging) {
         const deltaX = e.clientX - prevMouseX;
         const deltaY = e.clientY - prevMouseY;
-        basketball.rotation.y += deltaX * 0.008;
-        basketball.rotation.x += deltaY * 0.008;
+        dragVelocityX = deltaX * 0.007;
+        dragVelocityY = deltaY * 0.007;
+        basketball.rotation.y += dragVelocityX;
+        basketball.rotation.x += dragVelocityY;
         prevMouseX = e.clientX;
         prevMouseY = e.clientY;
       }
@@ -245,6 +248,8 @@ export default function BasketballCanvas() {
 
     const handlePointerDown = (e: PointerEvent) => {
       isDragging = true;
+      dragVelocityX = 0;
+      dragVelocityY = 0;
       prevMouseX = e.clientX;
       prevMouseY = e.clientY;
     };
@@ -266,41 +271,70 @@ export default function BasketballCanvas() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Animation Loop
+    // Animation Loop with IntersectionObserver Optimization
     let animationFrameId: number;
+    let isRunning = false;
     const clock = new THREE.Clock();
 
     const animate = () => {
+      if (!isRunning) return;
       animationFrameId = requestAnimationFrame(animate);
       const delta = clock.getDelta();
       const time = clock.getElapsedTime();
 
       if (!prefersReducedMotion) {
-        // Natural spinning
         if (!isDragging) {
-          basketball.rotation.y += delta * 0.45;
-          basketball.rotation.x = Math.sin(time * 0.4) * 0.15;
-          basketball.position.y = 0.08 + Math.sin(time * 1.5) * 0.04;
+          // Smooth drag release inertia dampening
+          if (Math.abs(dragVelocityX) > 0.0001 || Math.abs(dragVelocityY) > 0.0001) {
+            basketball.rotation.y += dragVelocityX;
+            basketball.rotation.x += dragVelocityY;
+            dragVelocityX *= 0.94;
+            dragVelocityY *= 0.94;
+          } else {
+            // Stately natural court spin
+            basketball.rotation.y += delta * 0.42;
+            basketball.rotation.x = Math.sin(time * 0.4) * 0.12;
+            basketball.position.y = 0.08 + Math.sin(time * 1.5) * 0.035;
+          }
         }
 
-        // Tilt towards mouse
-        targetRotY = mouseX * 0.4;
-        targetRotX = -mouseY * 0.3;
-        basketball.rotation.z += (targetRotY - basketball.rotation.z) * 0.05;
+        // Smoothly lerp tilt towards mouse
+        targetRotY = mouseX * 0.35;
+        basketball.rotation.z += (targetRotY - basketball.rotation.z) * 0.06;
 
         // Subtle particle drift
-        particles.rotation.y = time * 0.05;
+        particles.rotation.y = time * 0.04;
 
         // Court ring breathing glow
-        courtRingMat.opacity = 0.22 + Math.sin(time * 2) * 0.08;
+        courtRingMat.opacity = 0.22 + Math.sin(time * 2) * 0.06;
       }
 
       renderer.render(scene, camera);
     };
 
-    animate();
+    // IntersectionObserver to pause rendering when offscreen (saves GPU/CPU cycles)
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!isRunning) {
+            isRunning = true;
+            clock.start();
+            animate();
+          }
+        } else {
+          if (isRunning) {
+            isRunning = false;
+            cancelAnimationFrame(animationFrameId);
+          }
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
 
     return () => {
+      observer.disconnect();
+      isRunning = false;
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       container.removeEventListener('pointermove', handlePointerMove);

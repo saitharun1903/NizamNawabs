@@ -19,7 +19,7 @@ interface PlayerProps {
 
 export default function RosterCard({ player }: PlayerProps) {
   return (
-    <div className="group relative bg-surface-card border border-surface-border rounded-lg overflow-hidden transition-all duration-300 hover:border-brand-orange/60 hover:-translate-y-1.5 shadow-xl flex flex-col">
+    <div className="group relative bg-surface-card border border-surface-border rounded-lg overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-brand-orange/60 hover:-translate-y-1 shadow-xl flex flex-col">
       {/* Jersey Number Watermark & Active Tag */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
         <span className="w-8 h-8 rounded-md bg-brand-black/80 backdrop-blur-md border border-brand-orange/40 text-brand-orange font-display text-lg flex items-center justify-center font-black">
@@ -42,12 +42,12 @@ export default function RosterCard({ player }: PlayerProps) {
       {/* Player Photo Frame */}
       <div className="relative w-full h-72 sm:h-80 bg-gradient-to-b from-surface-dark via-surface-card to-black overflow-hidden flex items-end justify-center">
         {/* Court gradient backdrop */}
-        <div className="absolute inset-0 bg-radial-gradient from-brand-orange/10 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-radial-gradient from-brand-orange/10 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
 
         <img
           src={player.photoUrl || '/brand/player-2.png'}
           alt={player.name}
-          className="relative z-0 w-full h-full object-cover object-top filter brightness-95 group-hover:brightness-105 group-hover:scale-105 transition-all duration-500"
+          className="relative z-0 w-full h-full object-cover object-top filter brightness-95 group-hover:brightness-105 group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
         />
 
         {/* Soft vignette overlay */}
@@ -57,7 +57,7 @@ export default function RosterCard({ player }: PlayerProps) {
       {/* Player Information & Stats */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
-          <h3 className="font-display font-black text-2xl tracking-tight text-white group-hover:text-brand-orange transition-colors leading-tight uppercase break-words">
+          <h3 className="font-display font-black text-2xl tracking-tight text-white group-hover:text-brand-orange transition-colors duration-200 leading-tight uppercase break-words">
             {player.name}
           </h3>
           <div className="flex items-center gap-2 text-xs text-zinc-400 font-sans font-medium tracking-wide uppercase pt-0.5">

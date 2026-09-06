@@ -29,9 +29,9 @@ export default function PartnersStrip({ sponsors }: PartnersStripProps) {
           {sponsors.map((sponsor) => (
             <div
               key={sponsor.id}
-              className="flex items-center gap-4 px-8 py-5 rounded-2xl bg-surface-card border border-surface-border/80 hover:border-brand-orange/60 transition-all group"
+              className="flex items-center gap-4 px-8 py-5 rounded-2xl bg-surface-card border border-surface-border/80 hover:border-brand-orange/60 hover:bg-surface-elevated transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group"
             >
-              <span className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight group-hover:text-brand-orange transition-colors uppercase">
+              <span className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight group-hover:text-brand-orange transition-colors duration-200 uppercase">
                 {sponsor.name.toUpperCase()}
               </span>
               <div className="h-6 w-[1px] bg-surface-border" />

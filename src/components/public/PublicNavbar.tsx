@@ -76,11 +76,15 @@ export default function PublicNavbar({
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 pt-[var(--sat)] ${
+        className={`fixed top-0 left-0 right-0 z-40 pt-[var(--sat)] ${
           isScrolled
             ? 'bg-brand-black/95 backdrop-blur-md border-b border-surface-border/60 py-3 shadow-2xl'
             : 'bg-gradient-to-b from-black/90 via-black/40 to-transparent py-4 sm:py-5'
         }`}
+        style={{
+          transition:
+            'background-color 450ms cubic-bezier(0.16, 1, 0.3, 1), border-color 450ms cubic-bezier(0.16, 1, 0.3, 1), padding 450ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 450ms cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Brand Logo Crest & Wordmark */}
@@ -206,6 +210,10 @@ export default function PublicNavbar({
                   key={link.id || link.url}
                   href={link.url}
                   onClick={() => setMobileMenuOpen(false)}
+                  style={{
+                    animation: 'fadeSlideIn 320ms cubic-bezier(0.16, 1, 0.3, 1) backwards',
+                    animationDelay: `${idx * 45}ms`,
+                  }}
                   className={`group flex items-center justify-between py-2 sm:py-2.5 px-3 rounded-xl transition-all ${
                     isActive
                       ? 'bg-brand-orange/15 text-brand-orange'

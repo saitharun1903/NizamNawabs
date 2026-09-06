@@ -85,7 +85,7 @@ export default function SeasonCampaignPoster({ seasons }: SeasonCampaignPosterPr
             <div className="relative z-10 py-6 sm:py-10 md:py-14 space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">
                 {/* Authentic Season 1 Emblem */}
-                <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-2xl bg-black border border-surface-border overflow-hidden p-3 shadow-xl shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-2xl bg-black border border-surface-border overflow-hidden p-3 shadow-xl shrink-0 group-hover:scale-[1.03] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
                   <img
                     src={season1.coverImageUrl}
                     alt="TPBL Season 1 Emblem"
@@ -182,10 +182,10 @@ export default function SeasonCampaignPoster({ seasons }: SeasonCampaignPosterPr
 
                 <Link
                   href="/matches"
-                  className="w-full min-h-[48px] bg-brand-orange hover:bg-brand-orangeHover text-white py-3.5 rounded-xl font-sans font-bold uppercase tracking-wider text-xs transition-all shadow-xl shadow-brand-orange/20 flex items-center justify-center gap-2 group"
+                  className="btn-motion w-full min-h-[48px] bg-brand-orange hover:bg-brand-orangeHover text-white py-3.5 rounded-xl font-sans font-bold uppercase tracking-wider text-xs shadow-xl shadow-brand-orange/20 flex items-center justify-center gap-2 group"
                 >
                   <span>VIEW MATCH FIXTURES</span>
-                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
                 </Link>
               </div>
             </div>

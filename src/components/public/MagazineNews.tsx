@@ -54,13 +54,13 @@ export default function MagazineNews({ articles }: MagazineNewsProps) {
           {leadStory && (
             <div className="lg:col-span-7 group space-y-6">
               <Link href={`/news/${leadStory.slug}`} className="block relative">
-                <div className="relative h-[260px] sm:h-[380px] md:h-[480px] lg:h-[540px] rounded-3xl overflow-hidden bg-black border border-surface-border shadow-2xl">
+                <div className="relative h-[260px] sm:h-[380px] md:h-[480px] lg:h-[540px] rounded-3xl overflow-hidden bg-black border border-surface-border hover:border-surface-borderHover transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-2xl">
                   <img
                     src={leadStory.coverImageUrl || '/brand/post-journey-players.png'}
                     alt={leadStory.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-95"
+                    className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-95 group-hover:brightness-100"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-85 group-hover:opacity-95 transition-opacity duration-300" />
                   <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
                     <span className="px-3.5 py-1 rounded-full bg-brand-orange text-white text-xs font-sans font-bold uppercase tracking-wider shadow-lg shadow-brand-orange/30">
                       LEAD FEATURE
@@ -78,7 +78,7 @@ export default function MagazineNews({ articles }: MagazineNewsProps) {
                   <span>BY {leadStory.author.toUpperCase()}</span>
                 </div>
 
-                <h3 className="font-display font-black text-3xl sm:text-4xl lg:text-6xl text-white tracking-tight leading-[0.88] group-hover:text-brand-orange transition-colors uppercase">
+                <h3 className="font-display font-black text-3xl sm:text-4xl lg:text-6xl text-white tracking-tight leading-[0.88] group-hover:text-brand-orange transition-colors duration-200 uppercase">
                   <Link href={`/news/${leadStory.slug}`}>{leadStory.title}</Link>
                 </h3>
 
@@ -89,10 +89,10 @@ export default function MagazineNews({ articles }: MagazineNewsProps) {
                 <div className="pt-2">
                   <Link
                     href={`/news/${leadStory.slug}`}
-                    className="inline-flex items-center gap-2 text-xs font-sans font-bold uppercase tracking-wider text-brand-orange hover:text-white transition-colors group/link min-h-[44px]"
+                    className="inline-flex items-center gap-2 text-xs font-sans font-bold uppercase tracking-wider text-brand-orange hover:text-white transition-colors duration-200 group/link min-h-[44px]"
                   >
                     <span>READ FULL ARTICLE</span>
-                    <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1.5 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-200" />
                   </Link>
                 </div>
               </div>

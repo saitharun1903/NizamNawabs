@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { MOTION, isReducedMotion } from '@/lib/motion';
 
 export default function CinematicIntro() {
   const [isVisible, setIsVisible] = useState(true);
@@ -38,6 +39,9 @@ export default function CinematicIntro() {
           } catch {
             // ignore storage error
           }
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('nizam:intro-reveal'));
+          }
           setIsVisible(false);
         },
       });
@@ -60,6 +64,11 @@ export default function CinematicIntro() {
             duration: 0.4,
             delay: 0.4,
             ease: 'power2.inOut',
+            onStart: () => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('nizam:intro-reveal'));
+              }
+            },
           });
       } else {
         // Full Cinematic Opening Sequence (Target ~2.0s)
@@ -74,46 +83,45 @@ export default function CinematicIntro() {
         // Step 2: Atmospheric court lines and amber glow reveal (0.0s - 0.5s)
         tl.to(
           courtLinesRef.current,
-          { opacity: 1, scale: 1, duration: 0.7, ease: 'power2.out' },
+          { opacity: 1, scale: 1, duration: 0.7, ease: MOTION.ease.out },
           0.05
         )
           .to(
             glowRef.current,
-            { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' },
+            { opacity: 1, scale: 1, duration: 0.8, ease: MOTION.ease.out },
             0.1
           )
           .to(
             badgeRef.current,
-            { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+            { opacity: 1, y: 0, duration: 0.5, ease: MOTION.ease.out },
             0.15
           )
 
           // Step 3: Logo crest entrance (scale up gently and fade in) (0.15s - 0.65s)
           .to(
             logoWrapperRef.current,
-            { opacity: 1, scale: 1, duration: 0.55, ease: 'power2.out' },
+            { opacity: 1, scale: 1, duration: 0.55, ease: MOTION.ease.out },
             0.2
           )
 
           // Step 4: Controlled, stately 360-degree rotation (0.3s - 1.2s)
-          // Uses power2.inOut for smooth acceleration and precise deceleration into lock
           .to(
             logoImgRef.current,
             {
               rotation: 360,
               duration: 0.95,
-              ease: 'power2.inOut',
+              ease: MOTION.ease.inOut,
             },
             0.3
           )
 
-          // Step 5: Settle impulse on logo at finish (1.2s - 1.4s)
+          // Step 5: Settle impulse on logo at finish (1.2s - 1.4s) with smooth dampening
           .to(
             logoWrapperRef.current,
             {
-              scale: 1.05,
-              duration: 0.15,
-              ease: 'power1.out',
+              scale: 1.02,
+              duration: 0.18,
+              ease: MOTION.ease.out,
               yoyo: true,
               repeat: 1,
             },
@@ -123,19 +131,24 @@ export default function CinematicIntro() {
           // Step 6: Brand Name & Supporting Tagline reveal (1.25s - 1.65s)
           .to(
             textRef.current,
-            { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' },
+            { opacity: 1, y: 0, duration: 0.45, ease: MOTION.ease.out },
             1.28
           )
 
-          // Step 7: Seamless Dissolve into Homepage Hero (1.75s - 2.15s)
+          // Step 7: Seamless Dissolve into Homepage Hero (1.75s - 2.25s)
           .to(
             overlayRef.current,
             {
               opacity: 0,
-              scale: 1.03,
-              duration: 0.45,
-              ease: 'power2.inOut',
+              scale: 1.02,
+              duration: 0.55,
+              ease: MOTION.ease.inOut,
               pointerEvents: 'none',
+              onStart: () => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('nizam:intro-reveal'));
+                }
+              },
             },
             1.75
           );

@@ -63,7 +63,7 @@ export default function PublicFooter({ settings }: PublicFooterProps) {
                 href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-11 h-11 rounded-full bg-surface-card border border-surface-border flex items-center justify-center text-zinc-300 hover:text-brand-orange hover:border-brand-orange transition-all"
+                className="w-11 h-11 rounded-full bg-surface-card border border-surface-border flex items-center justify-center text-zinc-300 hover:text-brand-orange hover:border-brand-orange hover:scale-105 active:scale-95 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 title="Instagram"
               >
                 <InstagramIcon className="w-5 h-5" />
@@ -72,14 +72,14 @@ export default function PublicFooter({ settings }: PublicFooterProps) {
                 href={youtubeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-11 h-11 rounded-full bg-surface-card border border-surface-border flex items-center justify-center text-zinc-300 hover:text-red-500 hover:border-red-500 transition-all"
+                className="w-11 h-11 rounded-full bg-surface-card border border-surface-border flex items-center justify-center text-zinc-300 hover:text-red-500 hover:border-red-500 hover:scale-105 active:scale-95 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 title="YouTube"
               >
                 <YoutubeIcon className="w-5 h-5" />
               </a>
               <a
                 href={`mailto:${contactEmail}`}
-                className="w-11 h-11 rounded-full bg-surface-card border border-surface-border flex items-center justify-center text-zinc-300 hover:text-white hover:border-white transition-all"
+                className="w-11 h-11 rounded-full bg-surface-card border border-surface-border flex items-center justify-center text-zinc-300 hover:text-white hover:border-white hover:scale-105 active:scale-95 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 title="Email Team"
               >
                 <Mail className="w-5 h-5" />

@@ -47,14 +47,14 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
           {/* Tile 1: Tall Vertical Portrait (5 cols, spans 2 rows) */}
           {items[0] && (
             <div
-              className="md:col-span-5 relative h-[340px] sm:h-[480px] md:h-[620px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border group shadow-2xl"
+              className="md:col-span-5 relative h-[340px] sm:h-[480px] md:h-[620px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border hover:border-surface-borderHover transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group shadow-2xl"
             >
               <img
                 src={items[0].imageUrl}
                 alt={items[0].title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-90 group-hover:brightness-100"
+                className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
               <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
                 <span className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-brand-orange/40 text-brand-orange text-xs font-sans font-bold uppercase tracking-wider">
                   {items[0].category}
@@ -76,14 +76,14 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
             {/* Tile 2: Wide Panoramic Action Cut */}
             {items[1] && (
               <div
-                className="relative h-[240px] sm:h-[320px] md:h-[380px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border group shadow-2xl"
+                className="relative h-[240px] sm:h-[320px] md:h-[380px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border hover:border-surface-borderHover transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group shadow-2xl"
               >
                 <img
                   src={items[1].imageUrl}
                   alt={items[1].title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-90 group-hover:brightness-100"
+                  className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
                 <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
                   <span className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-brand-orange/40 text-brand-orange text-xs font-sans font-bold uppercase tracking-wider">
                     {items[1].category}
@@ -116,12 +116,12 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
               {/* Tile 3: Square Action Moment */}
               {items[2] && (
                 <div
-                  className="relative h-[200px] sm:h-[240px] md:h-[260px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border group shadow-xl"
+                  className="relative h-[200px] sm:h-[240px] md:h-[260px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border hover:border-surface-borderHover transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group shadow-xl"
                 >
                   <img
                     src={items[2].imageUrl}
                     alt={items[2].title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-90 group-hover:brightness-100"
+                    className="w-full h-full object-cover group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
                   <div className="absolute bottom-4 left-4 right-4">
@@ -138,12 +138,12 @@ export default function MasonryGallery({ items }: MasonryGalleryProps) {
         {/* Tile 4: Full Bleed Wide Panoramic Frame */}
         {items[3] && (
           <div
-            className="relative h-[240px] sm:h-[320px] md:h-[360px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border group shadow-2xl"
+            className="relative h-[240px] sm:h-[320px] md:h-[360px] rounded-3xl overflow-hidden bg-[#121214] border border-surface-border hover:border-surface-borderHover transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group shadow-2xl"
           >
             <img
               src={items[3].imageUrl}
               alt={items[3].title}
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 filter brightness-90 group-hover:brightness-100"
+              className="w-full h-full object-cover object-center group-hover:scale-[1.025] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] filter brightness-90 group-hover:brightness-100"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
             <div className="absolute top-4 left-4 sm:top-6 sm:left-6">

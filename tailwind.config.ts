@@ -45,6 +45,7 @@ const config: Config = {
       animation: {
         'marquee': 'marquee 25s linear infinite',
         'pulse-glow': 'pulseGlow 2.5s ease-in-out infinite',
+        'fade-slide-in': 'fadeSlideIn 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
       keyframes: {
         marquee: {
@@ -54,6 +55,10 @@ const config: Config = {
         pulseGlow: {
           '0%, 100%': { opacity: '0.4' },
           '50%': { opacity: '0.8' },
+        },
+        fadeSlideIn: {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
     },

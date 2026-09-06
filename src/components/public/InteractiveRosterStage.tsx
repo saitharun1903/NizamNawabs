@@ -108,7 +108,7 @@ export default function InteractiveRosterStage({ players }: InteractiveRosterSta
                 key={currentPlayer.id}
                 src={currentPlayer.photoUrl || '/brand/player-1.png'}
                 alt={currentPlayer.name}
-                className="w-full h-full object-cover object-top animate-fade-in filter brightness-95 group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover object-top animate-fade-slide-in filter brightness-95 group-hover:scale-[1.025] transition-transform duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
@@ -154,7 +154,7 @@ export default function InteractiveRosterStage({ players }: InteractiveRosterSta
             <div className="space-y-1">
               <h2
                 key={`name-${currentPlayer.id}`}
-                className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-white leading-[0.88] uppercase font-black animate-fade-in break-words"
+                className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-white leading-[0.88] uppercase font-black animate-fade-slide-in break-words"
               >
                 {currentPlayer.name}
               </h2>

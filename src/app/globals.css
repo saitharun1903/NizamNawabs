@@ -16,6 +16,12 @@
   --sab: env(safe-area-inset-bottom, 0px);
   --sal: env(safe-area-inset-left, 0px);
   --sar: env(safe-area-inset-right, 0px);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-micro: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 200ms;
+  --dur-card: 350ms;
+  --dur-section: 650ms;
 }
 
 html {
@@ -85,6 +91,28 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #FF5E00;
+}
+
+/* Luxury Subtle Motion Utilities */
+.btn-motion {
+  transition: transform var(--dur-micro) var(--ease-micro),
+              box-shadow var(--dur-micro) var(--ease-micro),
+              background-color var(--dur-micro) var(--ease-micro),
+              border-color var(--dur-micro) var(--ease-micro);
+}
+.btn-motion:hover {
+  transform: translateY(-1px);
+}
+.btn-motion:active {
+  transform: translateY(0.5px) scale(0.99);
+}
+
+.img-motion-hover {
+  transition: transform var(--dur-card) var(--ease-smooth),
+              filter var(--dur-card) var(--ease-smooth);
+}
+.img-motion-hover:hover {
+  transform: scale(1.025);
 }
 
 /* Reduced Motion */
