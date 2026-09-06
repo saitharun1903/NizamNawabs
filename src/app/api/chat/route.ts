@@ -5,16 +5,83 @@ import { getPublicAIContext } from '@/lib/ai-context';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+// Deprecated model identifiers that return 404 from Google API
+const DEPRECATED_MODELS = [
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-latest',
+  'gemini-1.5-pro',
+  'gemini-1.5-pro-latest',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-exp',
+  'gemini-2.5-flash',
+  'gemini-2.5-pro',
+];
+
+const DEFAULT_MODEL = 'gemini-3.6-flash';
+
+function getSanitizedApiKey(): string {
+  const rawKey = process.env.GEMINI_API_KEY || '';
+  return rawKey.trim().replace(/^["']|["']$/g, '');
+}
+
+function getSanitizedModel(): string {
+  const envModel = (process.env.GEMINI_MODEL || '').trim().replace(/^["']|["']$/g, '');
+  if (!envModel || DEPRECATED_MODELS.includes(envModel)) {
+    return DEFAULT_MODEL;
+  }
+  return envModel;
+}
+
 // GET: Returns current public AI assistant configuration (name, greeting, quick prompts)
-export async function GET() {
+// Supports ?check=1 for non-sensitive health verification
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const isHealthCheck = searchParams.get('check') === '1' || searchParams.get('health') === '1';
+
   try {
     const context = await getPublicAIContext();
+    const apiKey = getSanitizedApiKey();
+    const model = getSanitizedModel();
+
+    if (isHealthCheck) {
+      if (!apiKey) {
+        return NextResponse.json({
+          configured: false,
+          healthy: false,
+          error: 'GEMINI_API_KEY environment variable is not configured.',
+        });
+      }
+
+      try {
+        const ai = new GoogleGenAI({ apiKey });
+        const ping = await ai.models.generateContent({
+          model,
+          contents: 'Ping. Reply "OK".',
+        });
+        return NextResponse.json({
+          configured: true,
+          healthy: true,
+          model,
+          response: ping.text?.trim(),
+        });
+      } catch (healthErr: any) {
+        console.error('[Gemini Health Check Error]', healthErr);
+        return NextResponse.json({
+          configured: true,
+          healthy: false,
+          model,
+          error: healthErr?.message || 'Health check failed',
+          status: healthErr?.status,
+        });
+      }
+    }
+
     return NextResponse.json({
       enabled: context.enabled,
       assistantName: context.assistantName,
       welcomeMessage: context.welcomeMessage,
       suggestedPrompts: context.suggestedPrompts,
-      configured: Boolean(process.env.GEMINI_API_KEY),
+      configured: Boolean(apiKey),
     });
   } catch (error) {
     return NextResponse.json({
@@ -28,7 +95,7 @@ export async function GET() {
         'Tell me about Season 1',
         'Latest team news',
       ],
-      configured: false,
+      configured: Boolean(getSanitizedApiKey()),
     });
   }
 }
@@ -37,10 +104,14 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     // 1. Abuse & Rate Protections: Check API Key
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = getSanitizedApiKey();
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'The assistant is temporarily unavailable. Please try again.' },
+        {
+          error: 'The assistant is temporarily unavailable. Please try again.',
+          code: 'MISSING_API_KEY',
+          retryable: false,
+        },
         { status: 503 }
       );
     }
@@ -69,7 +140,7 @@ export async function POST(request: Request) {
     const aiContext = await getPublicAIContext(currentPath);
     if (!aiContext.enabled) {
       return NextResponse.json(
-        { error: 'The AI assistant is currently paused by administrators.' },
+        { error: 'The AI assistant is currently paused by administrators.', retryable: false },
         { status: 403 }
       );
     }
@@ -95,18 +166,63 @@ export async function POST(request: Request) {
 
     // 5. Initialize Official Google GenAI SDK
     const ai = new GoogleGenAI({ apiKey });
-    const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+    let model = getSanitizedModel();
 
-    const responseStream = await ai.models.generateContentStream({
-      model,
-      contents,
-      config: {
-        systemInstruction: aiContext.systemInstruction,
-        temperature: 0.25,
-      },
-    });
+    // 6. Attempt streaming response with automatic fallback to gemini-3.6-flash & non-streaming
+    let responseStream: any = null;
 
-    // 6. Stream chunks over HTTP ReadableStream
+    try {
+      responseStream = await ai.models.generateContentStream({
+        model,
+        contents,
+        config: {
+          systemInstruction: aiContext.systemInstruction,
+          temperature: 0.25,
+        },
+      });
+    } catch (streamErr: any) {
+      console.warn(`[Gemini Stream Error] Model "${model}" failed:`, streamErr?.message || streamErr);
+
+      // If configured model was not default gemini-3.6-flash, retry with default model
+      if (model !== DEFAULT_MODEL) {
+        model = DEFAULT_MODEL;
+        try {
+          responseStream = await ai.models.generateContentStream({
+            model,
+            contents,
+            config: {
+              systemInstruction: aiContext.systemInstruction,
+              temperature: 0.25,
+            },
+          });
+        } catch (retryErr: any) {
+          console.warn('[Gemini Stream Retry Error] Retrying with non-streaming fallback:', retryErr?.message);
+        }
+      }
+
+      // If streaming is unavailable, execute non-streaming fallback
+      if (!responseStream) {
+        const directResponse = await ai.models.generateContent({
+          model: DEFAULT_MODEL,
+          contents,
+          config: {
+            systemInstruction: aiContext.systemInstruction,
+            temperature: 0.25,
+          },
+        });
+
+        const text = directResponse.text || "I don't have that information yet.";
+        return new Response(text, {
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            'X-Content-Type-Options': 'nosniff',
+          },
+        });
+      }
+    }
+
+    // 7. Stream chunks over HTTP ReadableStream
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
       async start(controller) {
@@ -119,7 +235,7 @@ export async function POST(request: Request) {
           }
           controller.close();
         } catch (streamError) {
-          console.error('[Gemini Stream Error]', streamError);
+          console.error('[Gemini Stream Processing Error]', streamError);
           controller.error(streamError);
         }
       },
@@ -133,9 +249,16 @@ export async function POST(request: Request) {
       },
     });
   } catch (error: any) {
-    console.error('[Chat API Error]', error);
+    console.error('[Chat API Error]', {
+      status: error?.status,
+      message: error?.message,
+      code: error?.code,
+    });
     return NextResponse.json(
-      { error: 'The assistant is temporarily unavailable. Please try again.' },
+      {
+        error: 'The assistant is temporarily unavailable. Please try again.',
+        retryable: true,
+      },
       { status: 500 }
     );
   }

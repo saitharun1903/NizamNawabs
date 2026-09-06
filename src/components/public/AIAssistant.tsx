@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { X, Send, RotateCcw, Sparkles, AlertCircle, ArrowUpRight } from 'lucide-react';
 import { isReducedMotion } from '@/lib/motion';
+import { parseSuggestedPrompts } from '@/lib/ai-utils';
 
 interface Message {
   id: string;
@@ -21,6 +22,14 @@ interface AIAssistantProps {
   } | null;
 }
 
+const DEFAULT_PROMPTS = [
+  'Who are Nizam Nawabs?',
+  'Show me the roster',
+  'When is the next match?',
+  'Tell me about Season 1',
+  'Latest team news',
+];
+
 export default function AIAssistant({ initialSettings }: AIAssistantProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -34,14 +43,10 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
     initialSettings?.welcomeMessage ||
       "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?"
   );
+
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => {
-    const raw =
-      initialSettings?.suggestedPrompts ||
-      'Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news';
-    return raw
-      .split(';')
-      .map((p) => p.trim())
-      .filter(Boolean);
+    const parsed = parseSuggestedPrompts(initialSettings?.suggestedPrompts);
+    return parsed.length > 0 ? parsed : DEFAULT_PROMPTS;
   });
 
   // Chat UI State
@@ -56,8 +61,9 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const lastUserMessageRef = useRef<string>('');
 
-  // Fetch live CMS settings on mount if not provided via props
+  // Fetch live CMS settings on mount
   useEffect(() => {
     fetch('/api/chat')
       .then((res) => res.json())
@@ -65,8 +71,11 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
         if (typeof data.enabled === 'boolean') setIsEnabled(data.enabled);
         if (data.assistantName) setAssistantName(data.assistantName);
         if (data.welcomeMessage) setWelcomeMessage(data.welcomeMessage);
-        if (Array.isArray(data.suggestedPrompts) && data.suggestedPrompts.length > 0) {
-          setSuggestedPrompts(data.suggestedPrompts);
+        if (data.suggestedPrompts) {
+          const parsed = parseSuggestedPrompts(data.suggestedPrompts);
+          if (parsed.length > 0) {
+            setSuggestedPrompts(parsed);
+          }
         }
       })
       .catch(() => {
@@ -134,11 +143,22 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
     setErrorBanner(null);
   };
 
+  // Retry last failed user message
+  const handleRetry = () => {
+    if (lastUserMessageRef.current && !isLoading) {
+      // Remove any trailing error message
+      setMessages((prev) => prev.filter((m) => !m.isError));
+      setErrorBanner(null);
+      handleSend(lastUserMessageRef.current);
+    }
+  };
+
   // Send message
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || inputMessage).trim();
     if (!text || isLoading) return;
 
+    lastUserMessageRef.current = text;
     setInputMessage('');
     setErrorBanner(null);
 
@@ -148,7 +168,9 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
       content: text,
     };
 
-    const newHistory = [...messages, userMessage];
+    // Filter out previous error messages from history before appending new turn
+    const cleanPreviousHistory = messages.filter((m) => !m.isError);
+    const newHistory = [...cleanPreviousHistory, userMessage];
     setMessages(newHistory);
     setIsLoading(true);
     setStreamingContent('');
@@ -170,7 +192,7 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
       }
 
       if (!res.body) {
-        throw new Error('No response stream received from assistant.');
+        throw new Error('No response received from assistant.');
       }
 
       const reader = res.body.getReader();
@@ -191,13 +213,14 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
         {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: accumulated || "I don't have that information yet.",
+          content: accumulated.trim() || "I don't have that information yet. Please check back soon or contact contact@nizamnawabs.com.",
         },
       ]);
       setStreamingContent('');
     } catch (err: any) {
-      console.error('Chat error:', err);
-      setErrorBanner(err.message || 'The assistant is temporarily unavailable. Please try again.');
+      console.error('[Assistant Chat Error]:', err);
+      const errMsg = err?.message || 'The assistant is temporarily unavailable. Please try again.';
+      setErrorBanner(errMsg);
       setMessages((prev) => [
         ...prev,
         {
@@ -215,10 +238,7 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
 
   // Render markdown helper (renders bold, bullet lists, and internal router links)
   const renderMessageContent = (content: string) => {
-    // Regex for [Link Title](/route)
     const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-
-    // Split lines for list formatting
     const lines = content.split('\n');
 
     return (
@@ -227,10 +247,9 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
           const trimmed = line.trim();
           if (!trimmed) return <div key={lineIdx} className="h-1.5" />;
 
-          const isBullet = trimmed.startsWith('- ') || trimmed.startsWith('• ');
+          const isBullet = trimmed.startsWith('- ') || trimmed.startsWith('• ') || trimmed.startsWith('* ');
           const lineText = isBullet ? trimmed.slice(2) : trimmed;
 
-          // Parse markdown links and bold formatting within the line
           const elements: React.ReactNode[] = [];
           let lastIndex = 0;
           let match: RegExpExecArray | null;
@@ -242,7 +261,6 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
             const label = match[1];
             const href = match[2];
 
-            // Render internal link with seamless route navigation
             elements.push(
               <button
                 key={`link-${lineIdx}-${match.index}`}
@@ -290,6 +308,11 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
       )
     );
   };
+
+  // Ensure clean prompt list with no raw JSON characters
+  const cleanPrompts = suggestedPrompts
+    .map((p) => String(p).trim().replace(/^["'\[]+|["'\]]+$/g, ''))
+    .filter((p) => p.length > 0 && !p.startsWith('[') && !p.startsWith('{') && !p.includes('","'));
 
   if (!isEnabled) return null;
 
@@ -347,7 +370,7 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
             /* Mobile styles: Bottom Sheet */
             inset-x-0 bottom-0 h-[88vh] max-h-[88dvh] rounded-t-3xl rounded-b-none sm:rounded-2xl
             /* Desktop styles: Floating Box */
-            sm:inset-auto sm:bottom-24 sm:right-6 sm:w-[400px] sm:h-[580px] sm:max-h-[calc(100vh-8rem)]
+            sm:inset-auto sm:bottom-24 sm:right-6 sm:w-[420px] sm:h-[600px] sm:max-h-[calc(100vh-8rem)]
             animate-in fade-in slide-in-from-bottom-6 sm:zoom-in-95"
         >
           {/* Mobile Drag Handle */}
@@ -396,16 +419,25 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
           {/* Error Banner */}
           {errorBanner && (
             <div className="bg-red-500/10 border-b border-red-500/30 px-4 py-2 flex items-center justify-between text-xs text-red-300 font-sans">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 overflow-hidden">
                 <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                <span className="line-clamp-1">{errorBanner}</span>
+                <span className="truncate">{errorBanner}</span>
               </div>
-              <button
-                onClick={() => setErrorBanner(null)}
-                className="text-[10px] uppercase font-bold text-red-400 hover:text-white ml-2"
-              >
-                Dismiss
-              </button>
+              <div className="flex items-center gap-2 ml-2 shrink-0">
+                <button
+                  onClick={handleRetry}
+                  disabled={isLoading}
+                  className="text-[10px] uppercase font-bold text-brand-orange hover:text-white underline cursor-pointer"
+                >
+                  Retry
+                </button>
+                <button
+                  onClick={() => setErrorBanner(null)}
+                  className="text-[10px] uppercase font-bold text-zinc-400 hover:text-white cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
           )}
 
@@ -422,20 +454,22 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
             </div>
 
             {/* Quick Action Prompt Chips (Shown when conversation is fresh) */}
-            {messages.length === 0 && suggestedPrompts.length > 0 && (
-              <div className="pt-2 pl-10 space-y-2">
+            {messages.length === 0 && cleanPrompts.length > 0 && (
+              <div className="pt-2 sm:pl-10 space-y-2">
                 <span className="text-[10px] font-sans uppercase font-bold tracking-wider text-zinc-400 block">
                   SUGGESTED QUESTIONS:
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {suggestedPrompts.map((prompt, idx) => (
+                  {cleanPrompts.map((prompt, idx) => (
                     <button
                       key={idx}
+                      type="button"
                       onClick={() => handleSend(prompt)}
                       disabled={isLoading}
-                      className="text-left text-xs font-sans text-zinc-300 bg-surface-elevated hover:bg-surface-border hover:text-white border border-surface-border px-3 py-1.5 rounded-xl transition-all duration-200 hover:border-brand-orange/50 active:scale-95"
+                      className="group inline-flex items-center gap-2 text-left text-xs font-sans text-zinc-300 hover:text-white bg-[#141418] hover:bg-[#1C1C22] border border-white/10 hover:border-brand-orange/60 px-3.5 py-2 rounded-xl transition-all duration-200 hover:shadow-[0_2px_12px_rgba(255,94,0,0.15)] active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
-                      {prompt}
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-orange/80 group-hover:bg-brand-orange group-hover:scale-125 transition-all shrink-0" />
+                      <span className="leading-snug">{prompt}</span>
                     </button>
                   ))}
                 </div>
@@ -464,6 +498,22 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
                   }`}
                 >
                   {renderMessageContent(msg.content)}
+
+                  {/* Retry option on error messages */}
+                  {msg.isError && (
+                    <div className="mt-2.5 pt-2 border-t border-red-500/20 flex items-center justify-between gap-3">
+                      <span className="text-[11px] text-red-300/80">Unable to reach assistant</span>
+                      <button
+                        type="button"
+                        onClick={handleRetry}
+                        disabled={isLoading}
+                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-orange hover:text-white px-2.5 py-1 rounded-lg bg-brand-orange/15 hover:bg-brand-orange/30 transition-colors cursor-pointer"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Try again</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -481,16 +531,19 @@ export default function AIAssistant({ initialSettings }: AIAssistantProps) {
               </div>
             )}
 
-            {/* Thinking state (Subtle pulsing dots) */}
+            {/* Thinking state (Pulsing dots + text) */}
             {isLoading && !streamingContent && (
               <div className="flex items-start gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-brand-orange/20 border border-brand-orange/40 flex items-center justify-center text-brand-orange shrink-0 mt-0.5">
                   <Sparkles className="w-3.5 h-3.5" />
                 </div>
-                <div className="bg-surface-card border border-surface-border rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-brand-orange animate-bounce [animation-delay:-0.3s]" />
-                  <span className="w-2 h-2 rounded-full bg-brand-orange animate-bounce [animation-delay:-0.15s]" />
-                  <span className="w-2 h-2 rounded-full bg-brand-orange animate-bounce" />
+                <div className="bg-surface-card border border-surface-border rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center gap-2">
+                  <span className="text-xs text-zinc-400 font-sans">Thinking</span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-bounce" />
+                  </span>
                 </div>
               </div>
             )}

@@ -1,4 +1,7 @@
 import prisma from '@/lib/db';
+import { parseSuggestedPrompts } from '@/lib/ai-utils';
+
+export { parseSuggestedPrompts };
 
 export interface PublicAIContext {
   systemInstruction: string;
@@ -6,6 +9,65 @@ export interface PublicAIContext {
   welcomeMessage: string;
   suggestedPrompts: string[];
   enabled: boolean;
+}
+
+/**
+ * Dynamically builds suggested questions grounded strictly in available database records
+ */
+export function buildDynamicPrompts(options: {
+  playersCount: number;
+  hasUpcomingMatches: boolean;
+  hasCompletedMatches: boolean;
+  seasonsCount: number;
+  articlesCount: number;
+  rawConfigured?: unknown;
+}): string[] {
+  const dynamicDefaults: string[] = ['Who are Nizam Nawabs?'];
+
+  if (options.playersCount > 0) {
+    dynamicDefaults.push('Show me the roster');
+  }
+
+  if (options.hasUpcomingMatches) {
+    dynamicDefaults.push('When is the next match?');
+  } else if (options.hasCompletedMatches) {
+    dynamicDefaults.push('What was the latest match score?');
+  }
+
+  if (options.seasonsCount > 0) {
+    dynamicDefaults.push('Tell me about Season 1');
+  }
+
+  if (options.articlesCount > 0) {
+    dynamicDefaults.push('Latest team news');
+  } else {
+    dynamicDefaults.push('Where does the team play?');
+  }
+
+  // Parse raw configured prompts from SiteSettings if present
+  const parsed = parseSuggestedPrompts(options.rawConfigured);
+  if (parsed.length > 0) {
+    // Filter configured prompts so they don't ask for non-existent data
+    const filtered = parsed.filter((p) => {
+      const lower = p.toLowerCase();
+      if ((lower.includes('next match') || lower.includes('upcoming match')) && !options.hasUpcomingMatches) {
+        return false;
+      }
+      if (lower.includes('roster') && options.playersCount === 0) {
+        return false;
+      }
+      if (lower.includes('news') && options.articlesCount === 0) {
+        return false;
+      }
+      return true;
+    });
+
+    if (filtered.length >= 3) {
+      return filtered.slice(0, 5);
+    }
+  }
+
+  return dynamicDefaults.slice(0, 5);
 }
 
 export async function getPublicAIContext(currentPath: string = '/'): Promise<PublicAIContext> {
@@ -87,11 +149,21 @@ export async function getPublicAIContext(currentPath: string = '/'): Promise<Pub
 
     const assistantName = settings?.aiAssistantName || 'Nizam Nawabs Assistant';
     const welcomeMessage = settings?.aiWelcomeMessage || "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?";
-    const suggestedPrompts = (settings?.aiSuggestedPrompts || 'Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news')
-      .split(';')
-      .map((p) => p.trim())
-      .filter(Boolean);
     const enabled = settings?.aiEnabled ?? true;
+
+    const hasUpcomingMatches = matches.some(
+      (m) => m.status === 'Scheduled' || m.status === 'Upcoming'
+    );
+    const hasCompletedMatches = matches.some((m) => m.status === 'Completed');
+
+    const suggestedPrompts = buildDynamicPrompts({
+      playersCount: players.length,
+      hasUpcomingMatches,
+      hasCompletedMatches,
+      seasonsCount: seasons.length,
+      articlesCount: articles.length,
+      rawConfigured: settings?.aiSuggestedPrompts,
+    });
 
     // Build structured facts block
     const facts: string[] = [];
