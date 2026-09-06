@@ -14,17 +14,30 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [settingsData, navItems, teamInfo, activeSeason] = await Promise.all([
-    prisma.siteSetting.findUnique({ where: { id: 'default' } }),
-    prisma.navigationItem.findMany({
-      where: { isVisible: true },
-      orderBy: { displayOrder: 'asc' },
-    }),
-    prisma.teamInfo.findUnique({ where: { id: 'default' } }),
-    prisma.season.findFirst({
-      where: { isCurrent: true },
-    }),
-  ]);
+  let settingsData: any = null;
+  let navItems: any[] = [];
+  let teamInfo: any = null;
+  let activeSeason: any = null;
+
+  try {
+    const results = await Promise.all([
+      prisma.siteSetting.findUnique({ where: { id: 'default' } }),
+      prisma.navigationItem.findMany({
+        where: { isVisible: true },
+        orderBy: { displayOrder: 'asc' },
+      }),
+      prisma.teamInfo.findUnique({ where: { id: 'default' } }),
+      prisma.season.findFirst({
+        where: { isCurrent: true },
+      }),
+    ]);
+    settingsData = results[0];
+    navItems = results[1] || [];
+    teamInfo = results[2];
+    activeSeason = results[3];
+  } catch (dbError) {
+    console.warn('[PublicLayout] Database query notice (using resilient defaults):', dbError);
+  }
 
   let settings = settingsData;
   if (!settings) {

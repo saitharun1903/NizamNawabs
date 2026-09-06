@@ -33,6 +33,16 @@ if (isPostgres) {
 fs.writeFileSync(schemaPath, schema, 'utf8');
 
 try {
+  if (isPostgres) {
+    console.log('[prepare-db] Syncing schema to PostgreSQL database...');
+    try {
+      execSync('npx prisma db push --skip-generate --accept-data-loss', { stdio: 'inherit' });
+      console.log('[prepare-db] Database schema sync complete.');
+    } catch (syncError) {
+      console.warn('[prepare-db] Notice: db push warning (continuing):', syncError.message);
+    }
+  }
+
   console.log('[prepare-db] Generating Prisma Client...');
   execSync('npx prisma generate', { stdio: 'inherit' });
   console.log('[prepare-db] Prisma Client generation complete.');

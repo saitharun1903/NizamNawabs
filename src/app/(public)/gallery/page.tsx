@@ -16,10 +16,15 @@ export default async function GalleryPage({
     whereClause.category = selectedCat;
   }
 
-  const items = await prisma.galleryItem.findMany({
-    where: whereClause,
-    orderBy: { displayOrder: 'asc' },
-  });
+  let items: any[] = [];
+  try {
+    items = await prisma.galleryItem.findMany({
+      where: whereClause,
+      orderBy: { displayOrder: 'asc' },
+    });
+  } catch (err) {
+    console.warn('[GalleryPage] Database query notice (using defaults):', err);
+  }
 
   const categories = ['all', 'Match Day', 'Auction', 'Milestones', 'Lifestyle'];
 

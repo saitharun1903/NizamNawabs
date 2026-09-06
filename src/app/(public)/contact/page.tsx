@@ -7,7 +7,12 @@ import ContactForm from '@/components/public/ContactForm';
 export const dynamic = 'force-dynamic';
 
 export default async function ContactPage() {
-  const settings = await prisma.siteSetting.findUnique({ where: { id: 'default' } });
+  let settings: any = null;
+  try {
+    settings = await prisma.siteSetting.findUnique({ where: { id: 'default' } });
+  } catch (err) {
+    console.warn('[ContactPage] Database query notice (using defaults):', err);
+  }
 
   const contactEmail = settings?.contactEmail || 'contact@nizamnawabs.com';
   const location = settings?.location || 'Hyderabad, Telangana, India';

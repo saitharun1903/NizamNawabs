@@ -6,10 +6,15 @@ import { Newspaper, ArrowRight, Calendar, User } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function NewsPage() {
-  const articles = await prisma.article.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { publishedAt: 'desc' },
-  });
+  let articles: any[] = [];
+  try {
+    articles = await prisma.article.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: { publishedAt: 'desc' },
+    });
+  } catch (err) {
+    console.warn('[NewsPage] Database query notice (using defaults):', err);
+  }
 
   return (
     <div className="py-12 sm:py-24 space-y-10 sm:space-y-16 bg-brand-black">

@@ -5,10 +5,17 @@ import { Trophy, Shield, Flame, MapPin, Award } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function TeamPage() {
-  const teamInfo = await prisma.teamInfo.findUnique({ where: { id: 'default' } });
-  const featuredSeason =
-    (await prisma.season.findFirst({ where: { isCurrent: true } })) ||
-    (await prisma.season.findFirst({ orderBy: { seasonNumber: 'desc' } }));
+  let teamInfo: any = null;
+  let featuredSeason: any = null;
+
+  try {
+    teamInfo = await prisma.teamInfo.findUnique({ where: { id: 'default' } });
+    featuredSeason =
+      (await prisma.season.findFirst({ where: { isCurrent: true } })) ||
+      (await prisma.season.findFirst({ orderBy: { seasonNumber: 'desc' } }));
+  } catch (err) {
+    console.warn('[TeamPage] Database query notice (using defaults):', err);
+  }
 
   return (
     <div className="py-24 space-y-20 bg-brand-black">

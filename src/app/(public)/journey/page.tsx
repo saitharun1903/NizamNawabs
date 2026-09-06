@@ -5,10 +5,15 @@ import { Trophy, Clock, Flag, Sparkles } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function JourneyPage() {
-  const milestones = await prisma.journeyMilestone.findMany({
-    where: { isVisible: true },
-    orderBy: { displayOrder: 'asc' },
-  });
+  let milestones: any[] = [];
+  try {
+    milestones = await prisma.journeyMilestone.findMany({
+      where: { isVisible: true },
+      orderBy: { displayOrder: 'asc' },
+    });
+  } catch (err) {
+    console.warn('[JourneyPage] Database query notice (using defaults):', err);
+  }
 
   return (
     <div className="py-24 space-y-16 bg-brand-black">

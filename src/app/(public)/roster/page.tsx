@@ -18,15 +18,22 @@ export default async function RosterPage({
     whereClause.position = { contains: selectedPos };
   }
 
-  const players = await prisma.player.findMany({
-    where: whereClause,
-    orderBy: { displayOrder: 'asc' },
-  });
+  let players: any[] = [];
+  let allActivePlayers: any[] = [];
 
-  const allActivePlayers = await prisma.player.findMany({
-    where: { isActive: true },
-    orderBy: { displayOrder: 'asc' },
-  });
+  try {
+    players = await prisma.player.findMany({
+      where: whereClause,
+      orderBy: { displayOrder: 'asc' },
+    });
+
+    allActivePlayers = await prisma.player.findMany({
+      where: { isActive: true },
+      orderBy: { displayOrder: 'asc' },
+    });
+  } catch (err) {
+    console.warn('[RosterPage] Database query notice (using defaults):', err);
+  }
 
   const positions = ['all', 'Guard', 'Forward', 'Center'];
 

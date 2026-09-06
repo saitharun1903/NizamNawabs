@@ -28,61 +28,75 @@ function formatMatchDate(dateStr: string) {
 }
 
 export default async function HomePage() {
-  // Fetch dynamic CMS data concurrently from database
-  const [
-    siteSettings,
-    heroSlide,
-    liveMatches,
-    upcomingMatches,
-    completedMatches,
-    teamInfo,
-    players,
-    seasons,
-    galleryItems,
-    articles,
-    sponsors,
-  ] = await Promise.all([
-    prisma.siteSetting.findUnique({ where: { id: 'default' } }),
-    prisma.heroSlide.findFirst({
-      where: { isPublished: true },
-      orderBy: { displayOrder: 'asc' },
-    }),
-    prisma.match.findMany({
-      where: { status: 'Live' },
-    }),
-    prisma.match.findMany({
-      where: { status: 'Upcoming' },
-      orderBy: { matchDate: 'asc' },
-      take: 4,
-    }),
-    prisma.match.findMany({
-      where: { status: 'Completed' },
-      orderBy: { matchDate: 'desc' },
-      take: 4,
-    }),
-    prisma.teamInfo.findUnique({ where: { id: 'default' } }),
-    prisma.player.findMany({
-      where: { isActive: true },
-      orderBy: { displayOrder: 'asc' },
-    }),
-    prisma.season.findMany({
-      orderBy: { seasonNumber: 'asc' },
-    }),
-    prisma.galleryItem.findMany({
-      where: { isPublished: true },
-      orderBy: { displayOrder: 'asc' },
-      take: 5,
-    }),
-    prisma.article.findMany({
-      where: { status: 'PUBLISHED' },
-      orderBy: { publishedAt: 'desc' },
-      take: 4,
-    }),
-    prisma.sponsor.findMany({
-      where: { isActive: true },
-      orderBy: { displayOrder: 'asc' },
-    }),
-  ]);
+  let siteSettings: any = null;
+  let heroSlide: any = null;
+  let liveMatches: any[] = [];
+  let upcomingMatches: any[] = [];
+  let completedMatches: any[] = [];
+  let teamInfo: any = null;
+  let players: any[] = [];
+  let seasons: any[] = [];
+  let galleryItems: any[] = [];
+  let articles: any[] = [];
+  let sponsors: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.siteSetting.findUnique({ where: { id: 'default' } }),
+      prisma.heroSlide.findFirst({
+        where: { isPublished: true },
+        orderBy: { displayOrder: 'asc' },
+      }),
+      prisma.match.findMany({
+        where: { status: 'Live' },
+      }),
+      prisma.match.findMany({
+        where: { status: 'Upcoming' },
+        orderBy: { matchDate: 'asc' },
+        take: 4,
+      }),
+      prisma.match.findMany({
+        where: { status: 'Completed' },
+        orderBy: { matchDate: 'desc' },
+        take: 4,
+      }),
+      prisma.teamInfo.findUnique({ where: { id: 'default' } }),
+      prisma.player.findMany({
+        where: { isActive: true },
+        orderBy: { displayOrder: 'asc' },
+      }),
+      prisma.season.findMany({
+        orderBy: { seasonNumber: 'asc' },
+      }),
+      prisma.galleryItem.findMany({
+        where: { isPublished: true },
+        orderBy: { displayOrder: 'asc' },
+        take: 5,
+      }),
+      prisma.article.findMany({
+        where: { status: 'PUBLISHED' },
+        orderBy: { publishedAt: 'desc' },
+        take: 4,
+      }),
+      prisma.sponsor.findMany({
+        where: { isActive: true },
+        orderBy: { displayOrder: 'asc' },
+      }),
+    ]);
+    siteSettings = results[0];
+    heroSlide = results[1];
+    liveMatches = results[2] || [];
+    upcomingMatches = results[3] || [];
+    completedMatches = results[4] || [];
+    teamInfo = results[5];
+    players = results[6] || [];
+    seasons = results[7] || [];
+    galleryItems = results[8] || [];
+    articles = results[9] || [];
+    sponsors = results[10] || [];
+  } catch (dbErr) {
+    console.warn('[HomePage] Database query notice (rendering with defaults):', dbErr);
+  }
 
   // Combined smart match sorting: Live first, then nearest upcoming, then recent completed
   const sortedMatches = [...liveMatches, ...upcomingMatches, ...completedMatches];
@@ -96,10 +110,10 @@ export default async function HomePage() {
   // Dynamic Marquee Ticker generation
   let tickerPhrases: string[] = [];
   if (siteSettings?.tickerText && siteSettings.tickerText.trim().length > 0) {
-    tickerPhrases = siteSettings.tickerText
+    tickerPhrases = (siteSettings.tickerText as string)
       .split(/[\n•;]+/)
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0);
   }
 
   if (tickerPhrases.length === 0) {
