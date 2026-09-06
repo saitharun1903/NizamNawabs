@@ -58,6 +58,10 @@ export async function PUT(request: Request) {
         seoTitle: data.seoTitle,
         seoDescription: data.seoDescription,
         ogImageUrl: data.ogImageUrl,
+        aiEnabled: typeof data.aiEnabled === 'boolean' ? data.aiEnabled : true,
+        aiAssistantName: data.aiAssistantName || 'Nizam Nawabs Assistant',
+        aiWelcomeMessage: data.aiWelcomeMessage || "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?",
+        aiSuggestedPrompts: data.aiSuggestedPrompts || "Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news",
       },
       create: {
         id: 'default',
@@ -76,6 +80,10 @@ export async function PUT(request: Request) {
         seoTitle: data.seoTitle,
         seoDescription: data.seoDescription,
         ogImageUrl: data.ogImageUrl,
+        aiEnabled: typeof data.aiEnabled === 'boolean' ? data.aiEnabled : true,
+        aiAssistantName: data.aiAssistantName || 'Nizam Nawabs Assistant',
+        aiWelcomeMessage: data.aiWelcomeMessage || "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?",
+        aiSuggestedPrompts: data.aiSuggestedPrompts || "Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news",
       },
     });
 

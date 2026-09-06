@@ -24,6 +24,10 @@ model SiteSetting {
   seoTitle         String   @default("Nizam Nawabs | Official Professional Basketball Team of Telangana")
   seoDescription   String   @default("Official digital home of Nizam Nawabs, professional basketball team in Telangana. Season 1 Runners Up.")
   ogImageUrl       String   @default("/brand/reference-full.png")
+  aiEnabled        Boolean  @default(true)
+  aiAssistantName  String   @default("Nizam Nawabs Assistant")
+  aiWelcomeMessage String   @default("Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?")
+  aiSuggestedPrompts String @default("Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news")
   updatedAt        DateTime @updatedAt
 }
 

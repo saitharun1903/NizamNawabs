@@ -25,6 +25,10 @@ export default function AdminSettingsPage() {
     seoTitle: '',
     seoDescription: '',
     ogImageUrl: '',
+    aiEnabled: true,
+    aiAssistantName: 'Nizam Nawabs Assistant',
+    aiWelcomeMessage: "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?",
+    aiSuggestedPrompts: "Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news",
   });
 
   const loadSettings = async () => {
@@ -222,6 +226,69 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setSettings({ ...settings, seoDescription: e.target.value })}
                 className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
               />
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-4 border-t border-zinc-800">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+              <div>
+                <h3 className="text-xs font-mono font-bold text-orange-400 uppercase tracking-widest">
+                  Gemini AI Assistant Configuration
+                </h3>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Controls the public floating AI assistant, greeting text, and prompt chips.
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.aiEnabled}
+                  onChange={(e) => setSettings({ ...settings, aiEnabled: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
+                <span className="ml-2 text-xs font-medium text-zinc-300">
+                  {settings.aiEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </label>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-zinc-300 uppercase">Assistant Display Name</label>
+              <input
+                type="text"
+                value={settings.aiAssistantName}
+                onChange={(e) => setSettings({ ...settings, aiAssistantName: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-zinc-300 uppercase">Welcome Greeting</label>
+              <textarea
+                rows={2}
+                value={settings.aiWelcomeMessage}
+                onChange={(e) => setSettings({ ...settings, aiWelcomeMessage: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500 resize-none leading-relaxed"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-zinc-300 uppercase">
+                Suggested Prompt Chips (Semicolon separated)
+              </label>
+              <input
+                type="text"
+                value={settings.aiSuggestedPrompts}
+                onChange={(e) => setSettings({ ...settings, aiSuggestedPrompts: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+              />
+            </div>
+
+            <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-[11px] text-zinc-400">
+              <p>
+                🔒 <strong className="text-zinc-300">Security Notice:</strong> The Google Gemini API key (<code className="text-orange-400">GEMINI_API_KEY</code>) is stored exclusively in server environment variables and is never exposed in the CMS or browser.
+              </p>
             </div>
           </div>
 

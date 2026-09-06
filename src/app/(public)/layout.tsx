@@ -4,6 +4,7 @@ import PublicNavbar from '@/components/public/PublicNavbar';
 import PublicFooter from '@/components/public/PublicFooter';
 import CinematicIntro from '@/components/public/CinematicIntro';
 import BrandedPageTransition from '@/components/public/BrandedPageTransition';
+import AIAssistant from '@/components/public/AIAssistant';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,10 @@ export default async function PublicLayout({
       seoTitle: 'Nizam Nawabs | Professional Basketball Team — Telangana',
       seoDescription: 'Official website of Nizam Nawabs.',
       ogImageUrl: '/brand/reference-full.png',
+      aiEnabled: true,
+      aiAssistantName: 'Nizam Nawabs Assistant',
+      aiWelcomeMessage: "Hey. I'm the Nizam Nawabs Assistant. What would you like to know about the team?",
+      aiSuggestedPrompts: "Who are Nizam Nawabs?;Show me the roster;When is the next match?;Tell me about Season 1;Latest team news",
       updatedAt: new Date(),
     };
   }
@@ -66,6 +71,14 @@ export default async function PublicLayout({
           youtubeUrl: settings.youtubeUrl,
           contactEmail: settings.contactEmail,
           location: settings.location,
+        }}
+      />
+      <AIAssistant
+        initialSettings={{
+          enabled: settings.aiEnabled,
+          assistantName: settings.aiAssistantName,
+          welcomeMessage: settings.aiWelcomeMessage,
+          suggestedPrompts: settings.aiSuggestedPrompts,
         }}
       />
     </div>
