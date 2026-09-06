@@ -18,7 +18,7 @@ export default async function TeamPage() {
   }
 
   return (
-    <div className="py-24 space-y-20 bg-brand-black">
+    <div className="py-24 space-y-20 bg-brand-black overflow-hidden">
       {/* Hero Header */}
       <section className="relative pt-12 pb-16 border-b border-surface-border court-lines-pattern overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">

@@ -17,7 +17,7 @@ export default async function NewsPage() {
   }
 
   return (
-    <div className="py-12 sm:py-24 space-y-10 sm:space-y-16 bg-brand-black">
+    <div className="py-12 sm:py-24 space-y-10 sm:space-y-16 bg-brand-black overflow-hidden">
       {/* Header */}
       <section className="relative pt-8 sm:pt-12 pb-12 sm:pb-16 border-b border-surface-border court-lines-pattern overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">

@@ -72,7 +72,7 @@ export default async function PublicLayout({
     : teamInfo?.achievementSummary?.split('.')[0] || 'TELANGANA PRO BASKETBALL';
 
   return (
-    <div className="flex flex-col min-h-screen bg-brand-black text-brand-white">
+    <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-clip bg-brand-black text-brand-white">
       <CinematicIntro />
       <ScrollObserver />
       <PublicNavbar

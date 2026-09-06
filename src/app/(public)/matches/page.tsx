@@ -34,7 +34,7 @@ export default async function MatchesPage({
   ];
 
   return (
-    <div className="py-12 sm:py-24 space-y-10 sm:space-y-16 bg-brand-black">
+    <div className="py-12 sm:py-24 space-y-10 sm:space-y-16 bg-brand-black overflow-hidden">
       {/* Header */}
       <section className="relative pt-8 sm:pt-12 pb-12 sm:pb-16 border-b border-surface-border court-lines-pattern overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -55,7 +55,7 @@ export default async function MatchesPage({
 
       {/* Filter Tabs & Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
-        <div className="flex items-center gap-2 sm:gap-3 pb-4 sm:pb-6 border-b border-surface-border/60 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center gap-2 sm:gap-3 pb-4 sm:pb-6 border-b border-surface-border/60 overflow-x-auto no-scrollbar touch-momentum -mx-4 px-4 sm:mx-0 sm:px-0">
           <span className="text-xs uppercase font-sans font-bold tracking-wider text-zinc-400 mr-1 shrink-0">
             FILTER:
           </span>

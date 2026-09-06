@@ -29,7 +29,7 @@ export default async function GalleryPage({
   const categories = ['all', 'Match Day', 'Auction', 'Milestones', 'Lifestyle'];
 
   return (
-    <div className="py-24 space-y-16 bg-brand-black">
+    <div className="py-24 space-y-16 bg-brand-black overflow-hidden">
       {/* Header */}
       <section className="relative pt-12 pb-16 border-b border-surface-border court-lines-pattern overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -39,19 +39,19 @@ export default async function GalleryPage({
           </div>
 
           <h1 className="font-display font-black text-5xl sm:text-7xl lg:text-8xl text-white tracking-tight leading-[0.88] uppercase">
-            MEDIA <span className="text-brand-orange">GALLERY</span>
+            HARDWOOD <span className="text-brand-orange">GALLERY</span>
           </h1>
 
-          <p className="text-lg text-zinc-300 max-w-2xl font-sans leading-relaxed font-normal">
-            Unfiltered moments from the hardwood, player auctions, and championship series.
+          <p className="text-base sm:text-lg text-zinc-300 max-w-2xl font-sans leading-relaxed font-normal">
+            A curated photographic documentation of the Nizam Nawabs journey, high-intensity TPBL fixtures, player auctions, and team culture.
           </p>
         </div>
       </section>
 
       {/* Category Tabs & Mosaic Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div className="flex flex-wrap items-center gap-2 pb-6 border-b border-surface-border/60">
-          <span className="text-xs uppercase font-sans font-bold tracking-wider text-zinc-400 mr-2">
+        <div className="flex items-center gap-3 pb-6 border-b border-surface-border/60 overflow-x-auto no-scrollbar touch-momentum -mx-4 px-4 sm:mx-0 sm:px-0">
+          <span className="text-xs uppercase font-sans font-bold tracking-wider text-zinc-400 mr-2 whitespace-nowrap">
             CATEGORIES:
           </span>
           {categories.map((cat) => {

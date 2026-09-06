@@ -38,7 +38,7 @@ export default async function RosterPage({
   const positions = ['all', 'Guard', 'Forward', 'Center'];
 
   return (
-    <div className="pt-20 space-y-16 bg-brand-black">
+    <div className="pt-20 space-y-16 bg-brand-black overflow-hidden">
       {/* 1. Viewport-Dominating Player Stage */}
       <InteractiveRosterStage players={allActivePlayers} />
 

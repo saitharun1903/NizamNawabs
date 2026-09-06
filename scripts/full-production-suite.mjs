@@ -70,38 +70,48 @@ async function runSuite() {
 
   // 3. ADMIN CMS MUTATION & IMMEDIATE PURGE
   console.log('\n--- 3. Testing CMS Mutation & Cleanup ---');
-  // Create test sponsor
-  const createRes = await fetch(BASE_URL + '/api/admin/sponsors', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Cookie': cookieHeader
-    },
-    body: JSON.stringify({
-      name: 'PROD_TEST_VERIFICATION_SPONSOR',
-      logoUrl: '/brand/logo-crest.png',
-      tier: 'Test Partner',
-      websiteUrl: 'https://nizamnawabs.com',
-      displayOrder: 999
-    })
-  });
+  // Verify public homepage has zero test sponsor data
+  const homeCheckRes = await fetch(`${BASE_URL}/`);
+  const homeCheckHtml = await homeCheckRes.text();
+  assert(!homeCheckHtml.includes('PROD_TEST'), 'Public homepage contains no PROD_TEST records');
+  assert(!homeCheckHtml.includes('TEST PARTNER'), 'Public homepage contains no TEST PARTNER text');
+  assert(!homeCheckHtml.includes('VERIFICATION_SPONSOR'), 'Public homepage contains no VERIFICATION_SPONSOR text');
 
-  assert(createRes.status === 200 || createRes.status === 201, `CMS create sponsor returns HTTP 200/201 (actual: ${createRes.status})`);
-  const createdData = await createRes.json();
-  const sponsorItem = createdData.sponsor || createdData;
-  assert(sponsorItem && sponsorItem.id && sponsorItem.name === 'PROD_TEST_VERIFICATION_SPONSOR', 'Temporary test item created via Admin API');
+  // Test CMS Sponsor CRUD with guaranteed cleanup and isActive: false
+  let tempSponsorId = null;
+  try {
+    const createRes = await fetch(BASE_URL + '/api/admin/sponsors', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader
+      },
+      body: JSON.stringify({
+        name: 'Ephemeral Audit Partner',
+        logoUrl: '/brand/logo-crest.png',
+        tier: 'Official Partner',
+        websiteUrl: 'https://nizamnawabs.com',
+        displayOrder: 999,
+        isActive: false // Kept inactive so it never leaks to public website
+      })
+    });
 
-  // Delete test sponsor
-  const deleteRes = await fetch(`${BASE_URL}/api/admin/sponsors/${sponsorItem.id}`, {
-    method: 'DELETE',
-    headers: {
-      'Cookie': cookieHeader
+    assert(createRes.status === 200 || createRes.status === 201, `CMS create sponsor returns HTTP 200/201 (actual: ${createRes.status})`);
+    const createdData = await createRes.json();
+    const sponsorItem = createdData.sponsor || createdData;
+    tempSponsorId = sponsorItem?.id;
+    assert(tempSponsorId && sponsorItem.name === 'Ephemeral Audit Partner', 'Temporary audit item created via Admin API');
+  } finally {
+    if (tempSponsorId) {
+      const deleteRes = await fetch(`${BASE_URL}/api/admin/sponsors/${tempSponsorId}`, {
+        method: 'DELETE',
+        headers: { 'Cookie': cookieHeader }
+      });
+      assert(deleteRes.status === 200, `CMS delete sponsor returns HTTP 200 (actual: ${deleteRes.status})`);
+      const deleteData = await deleteRes.json();
+      assert(deleteData.success === true, 'Temporary audit item purged cleanly from database');
     }
-  });
-
-  assert(deleteRes.status === 200, `CMS delete sponsor returns HTTP 200 (actual: ${deleteRes.status})`);
-  const deleteData = await deleteRes.json();
-  assert(deleteData.success === true, 'Temporary test item purged cleanly from production database');
+  }
 
   // 4. GEMINI ASSISTANT ENDPOINT
   console.log('\n--- 4. Testing AI Assistant API Endpoint ---');

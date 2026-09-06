@@ -70,7 +70,7 @@ export default function InteractiveRosterStage({ players }: InteractiveRosterSta
           </div>
 
           {/* Player Switcher Tabs — Touch Scrollable */}
-          <div className="w-full sm:w-auto flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="w-full sm:w-auto flex items-center gap-2 overflow-x-auto no-scrollbar touch-momentum pb-1 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
             {players.map((p, idx) => (
               <button
                 key={p.id}
