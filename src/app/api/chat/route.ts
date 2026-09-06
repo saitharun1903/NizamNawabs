@@ -70,6 +70,8 @@ export async function GET(request: Request) {
           configured: true,
           healthy: false,
           model,
+          keyPrefix: `${apiKey.slice(0, 4)}...${apiKey.slice(-4)}`,
+          keyLength: apiKey.length,
           error: healthErr?.message || 'Health check failed',
           status: healthErr?.status,
         });
